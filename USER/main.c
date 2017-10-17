@@ -5,7 +5,7 @@
 Belt_Work_Type belt;
  Printer_Type Printer;
  Control_Input_Type Control;
-uint32_t pBuffer[2]={12,12};
+
 void delay_ms1(u16 ms)
 {
 	u16  i;
@@ -18,8 +18,7 @@ void delay_ms1(u16 ms)
 }
 //配置时钟在target宏定义
 int main(void)
-{ 
-    u32 crc32;
+{
 		delay_init();
 		Key_Light_Init();
 		Belt_Config();
@@ -37,7 +36,6 @@ int main(void)
 		param_init();
 		delay_ms(1000);
     while(1){
-      crc32 = CRC_CalcBlockCRC(pBuffer,2);
 			Roll_Paper_Control();
 			Printer_Control();
 			Air_Cylinder_Control();

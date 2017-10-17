@@ -131,7 +131,7 @@ void Printer_Control(void)
 																Printer.start_delay_time = PRINTER_START_DELAY_TIME;																																
 																AIR_BLOW_ON;
 																VACUUM_ON;
-														 		PRINTER_START_ON;
+																PRINTER_START_ON;
 																Air_Control.complete = 0;
 															  Printer.printer_work_timeout = 100;
 															  MCU_Host_Send.control.err_message &=0xF7;
@@ -155,9 +155,9 @@ void Printer_Control(void)
 																		Printer.end.state = 0;
 																		working_err++;
 																		if(working_err > 3){//连续3次发送打印操作，但是没有打印任务，也就是没有打印结束信号，设置为故障报警
-// 																			Device_State = 3;
+																			Device_State = 3;
 																			working_err = 0;	
-// 																			MCU_Host_Send.control.err_message |=0x08;
+																			MCU_Host_Send.control.err_message |=0x08;
 																		}
 																	}
 															}
