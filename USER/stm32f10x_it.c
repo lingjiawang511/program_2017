@@ -145,28 +145,10 @@ void SysTick_Handler(void)
 //=============================================================================
 void TIM2_IRQHandler(void)
 {
-	static u8 key = 0;
 	if ( TIM_GetITStatus(TIM2 , TIM_IT_Update) != RESET ) 
 	{	
 			Led_Flash();
-			if(Menu_Valid_Time > 0){
-			key=Key_Scan();
-			if(key >0){
-				Key_ScanNum = key;
-				Menu_Valid_Time = MENU_VALID_TIME;
-				key = 0;
-			}
-			if(timeflag >0){
-					timeflag--;
-			}
-			if(Menu_Exit_Time > 0){
-				Menu_Exit_Time--;
-			}
-			Menu_Valid_Time--;
-	}else{
-			Menu_Exit_Time = 0;
-	}
-		TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);  		 
+			TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);  		 
 	}		 	
 }
 //=============================================================================

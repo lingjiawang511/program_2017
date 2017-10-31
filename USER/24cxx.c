@@ -210,28 +210,11 @@ void AT24CXX_Init(void)
 			  addrtemp2 = AT24CXX_ReadOneByte(0x01);
 			  if((addrtemp1 == addrtemp2)&&(addrtemp1 < 128)){
 					slaveaddr = addrtemp1;
-					clear_screen(0xFF);
-					AdrrOK_Flag = 1;
 				}else{
-					display_GB2312_string(0,8,"请设置设备地址");
-					display_GB2312_string(2,16,"当前地址:0");
-					display_GB2312_string(4,8,"该地址设备异常");
-					display_GB2312_string(6,16,"1<=地址<=128");
 					slaveaddr = 0;
 					delay_ms(1500);
-					delay_ms(1500);
-					
 					delay_ms(1500);
 				}
-		}else{
-					display_GB2312_string(0,8,"请设置设备地址");
-					display_GB2312_string(2,16,"当前地址:0");
-					display_GB2312_string(4,8,"该地址设备异常");
-					display_GB2312_string(6,16,"1<=地址<=128");
-					slaveaddr = 0;
-					delay_ms(1500);
-					delay_ms(1500);
-					delay_ms(1500);
 		}
 }
 
