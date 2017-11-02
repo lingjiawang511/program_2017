@@ -402,11 +402,6 @@
               <FilePath>..\USER\crc16.c</FilePath>
             </File>
             <File>
-              <FileName>key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USER\key.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32f10x_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\USER\stm32f10x_it.c</FilePath>
@@ -437,14 +432,14 @@
               <FilePath>..\USER\communication.c</FilePath>
             </File>
             <File>
-              <FileName>LCD_ZK.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USER\LCD_ZK.c</FilePath>
-            </File>
-            <File>
               <FileName>24cxx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\USER\24cxx.c</FilePath>
+            </File>
+            <File>
+              <FileName>LOCK.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\LOCK.C</FilePath>
             </File>
           </Files>
         </Group>

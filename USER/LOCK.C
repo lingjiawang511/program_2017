@@ -1,5 +1,6 @@
 #include"HeadType.h"
 
+u16 Lock_Excute_Time;
 #define LOCK_SHORT_TIME 		20
 #define LOCK_LONG_TIME			300
 u8 Lock1_State;
@@ -76,7 +77,7 @@ void LOCK_GPIO_Config(void)
 	LOCK2_OFF;
 }
 
-void Lock_control(void )
+void Lock_control1(void )
 {
 	 static u8 lock1_triggerstate;
 	 static u16 lock1_timercount;
@@ -168,11 +169,62 @@ void Lock_control(void )
 	}
 }
 
+/**************************************************************************************
+* 名   称:	  Write595_byte
+* 功   能: 	  写8位数据进595 ,但不输出
+* 参   数: 	  需要写的数据bytedata
+* 返回值:	  无
+*
+* 修改历史:
+*   版本   日期    作者    
+*   ----------------------------------------------------
+*   1.0   2015.7.30   ling     
+**************************************************************************************/
+void Write595_byte(uint8 bytedata)
+{
+	uint8 j;  
+	
+		for(j=0;j<8;j++)
+		{
+     if((0x80>>j)&bytedata){
+				SET_HC595_DS;
+		}else{
+				RESET_HC595_DS;
+		}
+			Shife595();
+		}
+}
 
+void Lock_control(void )
+{
+	static enum{
+		LOCK_READY,
+		LOCK_OPEN_ONE,
+		LOCK_OPEN_ALL,
+		LOCK_CLOSE,
+	}Lock_state = LOCK_READY;
+	switch(Lock_state){
+		case LOCK_READY:
+			break ;
+		case LOCK_OPEN_ONE:
+			Lock_Excute_Time = LOCK_EXCUTE_TIME;
+			if(Lock_Excute_Time == 0){
+				Lock_state = LOCK_CLOSE;
+			}
+			break;
+		case LOCK_OPEN_ALL:
+			Lock_Excute_Time = LOCK_EXCUTE_TIME;
+			if(Lock_Excute_Time == 0){
+				Lock_state = LOCK_CLOSE;
+			}		
+			break;
+		case LOCK_CLOSE:
+			break;
+		default :
+			break;
 
-
-
-
+	}
+}
 
 
 
