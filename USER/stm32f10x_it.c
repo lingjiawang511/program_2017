@@ -148,6 +148,9 @@ void TIM2_IRQHandler(void)
 	if ( TIM_GetITStatus(TIM2 , TIM_IT_Update) != RESET ) 
 	{	
 			Led_Flash();
+		  if(Lock_Excute_Time > 0){
+				Lock_Excute_Time--;
+			}
 			TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);  		 
 	}		 	
 }

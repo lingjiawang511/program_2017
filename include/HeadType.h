@@ -52,13 +52,8 @@ typedef uint32	ulong;		/**< 32-bit value */
 #define NANSWER_TIME	 1000	  //1000*5ms
 #define NANSWER_NUMOUT	 	 3	  //1000*5ms
 
-#define SEND_MEDICINE_TIMEOUT		200    //发药过程中检测到没有药，超时200*5MS后停止
-#define IRQ_TIMEOUT							4			//中断软件延时时间
-#define	MOTOR_START_DELAYTIME		40		//每个电机启动延时间隔
+#define LOCK_EXCUTE_TIME	100		//开锁动作执行时间 1000*5ms
 
-#define selectboard		     	1
-#define MENU_EXIT_TIME 			4000
-#define MENU_VALID_TIME			12000
 /*************define type end*******************/
 
 /*************union type start*******************/
@@ -237,17 +232,7 @@ extern  COMM_Rec_Union_Type  MCU_Host_Rec;
 extern  MCU_State_Type MCU_State;
 extern  Answer_Type 	 PC_Answer;
 
-extern  CH_Work Channel;
-extern	Belt_Work_Type belt11;
-extern	Belt_Work_Type belt12;
-extern u8 Key_ScanNum;
-extern RFID_REC_Type Usart2_RFIDRec;
-extern RFID_REC_Type Usart3_RFIDRec;
-extern u8 Key_SetParamFlag;
-extern  u16  timeflag;
-extern u8 AdrrOK_Flag;
-extern u16  Menu_Exit_Time;
-extern u32 Menu_Valid_Time;
+extern u16 Lock_Excute_Time;
 /*************extern variable end*******************/
 
 /*************function start*******************/
