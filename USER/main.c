@@ -19,11 +19,12 @@ int main(void)
 		AT24CXX_Init();
 		USART1_Config();
 		LED_GPIO_Config();
+    LOCK_GPIO_Config();
     TIM2_Config();
     TIM3_Config();	
 		delay_ms(100);
     while(1){
-			
+      Lock_control();
 		}       
 }
 
