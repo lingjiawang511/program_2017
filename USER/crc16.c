@@ -1,5 +1,5 @@
 #include"HeadType.h"
-
+#include"stdio.h"
 //CRC16 Modbus RTC查询表
 const u16 g_McRctable_16[256] =
 {
@@ -98,7 +98,63 @@ static u16 crc16_ccitt(u8 *buf, int len) /*产生16位CRC码的程序*/
    }
    return(crc);
 }
+/**function: CharToHex() 
+*** ACSII change to 16 hex 
+*** input:ACSII 
+***Return :Hex 
+**/  
+unsigned char CharToHex(unsigned char bHex)  
+{  
+    unsigned char res;
+    if(bHex<=9){  
+        res =bHex + 0x30;  
+    }else if((bHex>=10)&&(bHex<=15)){ //Capital 
+        res =bHex + 0x37;  
+    }else{  
+        res = 0xff;  
+    }  
+    return res;  
+}  
 
+//函 数 名：HexToChar() 
+//功能描述：把16进制转换为ASCII字符 
+//函数说明： //调用函数： 
+//全局变量： 
+//输 入：16进制 
+//返 回：ASCII字符
+
+unsigned char HexToChar(unsigned char bChar)  
+{  
+    if((bChar>=0x30)&&(bChar<=0x39))  {  
+        bChar -= 0x30;  
+    }else if((bChar>=0x41)&&(bChar<=0x46)){  // Capital 
+        bChar -= 0x37;  
+    }else if((bChar>=0x61)&&(bChar<=0x66)){ //littlecase  
+        bChar -= 0x57;  
+    }else{  
+        bChar = 0xff;  
+    }  
+    return bChar;  
+}
+//=============================================================================
+//函数名称:LRC16
+//功能概要:LRC校验方式= BUF所有字节累加，然后取反加一
+//参数名称:*buf：16位LRC校验数据；len：数据流长度；
+//函数返回:LRC16结果
+//=============================================================================
+static u16 LRC16(u8 *buf, int len) /*产生16位CRC码的程序*/
+{
+   u8 lrc = 0;
+   u16 lrc_res=0;
+   while(len--!=0){
+    lrc += *buf;
+	  buf++;
+   }
+   lrc = ~lrc;
+   lrc = lrc + 1;
+   lrc_res = (CharToHex(lrc/16))*256 + CharToHex(lrc%16);
+   return(lrc_res);
+}
 //=============================================================================
 //函数名称:CRC_GetModbus16
 //功能概要:Modbus RTC 校验计算
@@ -123,4 +179,13 @@ u16 CRC_GetCCITT(u8 *pdata, int len)
 	return crc16_ccitt(pdata,len);
 }
 
-
+//=============================================================================
+//函数名称:LRC_GetLRC16
+//功能概要:LRC_GetLRC16 校验计算
+//参数名称:*pdata：16位LRC校验数据；len：数据流长度；
+//函数返回:CRC16结果
+//=============================================================================
+u16 LRC_GetLRC16(u8 *pdata, int len)
+{
+	return LRC16(pdata,len);
+}

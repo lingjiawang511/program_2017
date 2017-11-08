@@ -29,14 +29,14 @@ void I2C_INIT()
 	
 //     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 //     PWR_WakeUpPinCmd(DISABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);	//使能复用功能时钟
-   // GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
-	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable , ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB,ENABLE);
+//     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);	//使能复用功能时钟
+//     GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
+// 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable , ENABLE);
+  	RCC_APB2PeriphClockCmd(I2C_RCC,ENABLE);
     
 	GPIO_InitStructure.GPIO_Pin=I2C_SCL|I2C_SDA;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_Out_OD;
 	GPIO_Init(GPIO_I2C,&GPIO_InitStructure);
 
 	I2C_SCL_H;
@@ -55,7 +55,7 @@ void I2C_SDA_OUT()
 	
 	GPIO_InitStructure.GPIO_Pin=I2C_SDA;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_Out_OD;
 	GPIO_Init(GPIO_I2C,&GPIO_InitStructure);
 }
 
@@ -212,8 +212,8 @@ void AT24CXX_Init(void)
 					slaveaddr = addrtemp1;
 				}else{
 					slaveaddr = 0;
-					delay_ms(1500);
-					delay_ms(1500);
+          AT24CXX_WriteOneByte(0x00,0x55);
+          AT24CXX_WriteOneByte(0x01,0x55);
 				}
 		}
 }

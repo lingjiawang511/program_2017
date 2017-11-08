@@ -11,23 +11,7 @@ char Auto_Frame_Time1;
 char Auto_Frame_Time2;
 char Auto_Frame_Time3;
 
-static void RE485_GPIO_Config(void)
-{
-	//定义一个GPIO_InitTypeDef 类型的结构体，名字叫GPIO_InitStructure 
-	GPIO_InitTypeDef  GPIO_InitStructure;
-	//使能GPIOC的外设时钟
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
 
-	//选择要用的GPIO引脚		
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
-	///设置引脚模式为推免输出模式			 
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 
-	//设置引脚速度为50MHZ
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-	//调用库函数，初始化GPIO
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-  
-}
 
 //=============================================================================
 //函数名称:Init_USART1
@@ -43,8 +27,7 @@ static void Init_USART1(void)
     Usart1_Control_Data.rx_count = 0;
     Usart1_Control_Data.rx_start = 0;
     Usart1_Control_Data.rx_aframe = 0;
-    RE485_GPIO_Config();
-		RE485_REC;
+    
 }
 //=============================================================================
 //函数名称:Init_USART2
@@ -422,7 +405,6 @@ void USART1_Do_Tx(void )
 	}else{
        Usart1_Control_Data.tx_count = 0; 
        Usart1_Control_Data.tx_index = 0;
-			 RE485_REC;
     }
 }
 //=============================================================================
@@ -439,7 +421,7 @@ void USART2_Do_Tx(void )
 		Usart2_Control_Data.tx_index++;
 	}else{
        Usart2_Control_Data.tx_count = 0; 
-       Usart2_Control_Data.tx_index = 0;		
+       Usart2_Control_Data.tx_index = 0;	   
     }
 }
 //=============================================================================
@@ -468,6 +450,7 @@ void USART3_Do_Tx(void )
 //=============================================================================
 void USART1_Do_Rx(u8 rxdata)
 {       
+		static u8 old_frame_end1,old_frame_end2;
     if (0 == Usart1_Control_Data.rx_aframe){
        if (0 == Usart1_Control_Data.rx_index){  //接收第一帧的第一个数据开启定时器3做时间自动成帧处理
            Usart1_Control_Data.rx_start = 1;
@@ -483,7 +466,18 @@ void USART1_Do_Rx(u8 rxdata)
         }
 				Auto_Frame_Time1 = AUTO_FRAME_TIMEOUT1;
        	Usart1_Control_Data.rxbuf[Usart1_Control_Data.rx_index] = rxdata;
-        Usart1_Control_Data.rx_index++;
+				Usart1_Control_Data.rx_index++;	
+				if(Usart1_Control_Data.rx_index >= 2){		//接受数据帧尾成帧
+					old_frame_end1 = Usart1_Control_Data.rxbuf[Usart1_Control_Data.rx_index - 2];
+					old_frame_end2 = Usart1_Control_Data.rxbuf[Usart1_Control_Data.rx_index - 1];
+					if((old_frame_end1 == 0x0D)&&(old_frame_end2 == 0X09)){
+							Usart1_Control_Data.rx_aframe = 1;  //接收数据长度自动成帧
+							Usart1_Control_Data.rx_count = Usart1_Control_Data.rx_index;
+						  Usart1_Control_Data.rx_index = 0;   //得到一帧数据后及时把索引清零
+							Usart1_Control_Data.rx_start = 0;
+							Auto_Frame_Time1 = AUTO_FRAME_TIMEOUT1; 
+					}
+				}
         if (Usart1_Control_Data.rx_index > (RxBufMax - 1)){
             Usart1_Control_Data.rx_index = (RxBufMax - 1);
             Usart1_Control_Data.rx_aframe = 1;  //接收数据长度自动成帧

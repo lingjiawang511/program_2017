@@ -16,14 +16,15 @@ void delay_ms1(u16 ms)
 int main(void)
 {
 		delay_init();
-		AT24CXX_Init();
-		USART1_Config();
-		LED_GPIO_Config();
+  	LED_GPIO_Config();
     LOCK_GPIO_Config();
+		USART1_Config();
+    USART2_Config();
     TIM2_Config();
     TIM3_Config();	
 		delay_ms(100);
     while(1){
+      Communication_Process();
       Lock_control();
 		}       
 }
