@@ -52,8 +52,8 @@ typedef uint32	ulong;		/**< 32-bit value */
 #define NANSWER_TIME	 1000	  //1000*5ms
 #define NANSWER_NUMOUT	 	 3	  //1000*5ms
 
-#define LOCK_EXCUTE_TIME	200		//开锁动作执行时间 1000*5ms
-
+#define LOCK_OPEN_TIME	60		//开锁动作执行时间 1000*5ms
+#define LOCK_CLOSE_TIME	40		//开锁动作执行时间 1000*5ms
 /*************define type end*******************/
 
 /*************union type start*******************/

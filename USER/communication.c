@@ -84,7 +84,7 @@ u8  Execute_Host_Comm(void)
 {
   u8 res = 0;
 	if(slave_rec_state == 1){//执行主机发送的命令
-    open_lock_count = HexToChar(MCU_Host_Rec.control.lockH)*10 + HexToChar(MCU_Host_Rec.control.lockL);
+    open_lock_count = HexToChar(MCU_Host_Rec.control.lockH)*16 + HexToChar(MCU_Host_Rec.control.lockL);
     if(open_lock_count <= 32){
       res = 0;
     }else{
