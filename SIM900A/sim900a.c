@@ -19,11 +19,11 @@ u8 Sim_Ready = 0;
 //     1,清零USART2_RX_STA;
 void sim_at_response(u8 mode)
 {
-	if(USART2_RX_STA&0X8000)		//接收到一次数据了
+	if(USART1_RX_STA&0X8000)		//接收到一次数据了
 	{ 
-		USART2_RX_BUF[USART2_RX_STA&0X7FFF]=0;//添加结束符
-		printf("%s",USART2_RX_BUF);	//发送到串口
-		if(mode)USART2_RX_STA=0;
+		USART1_RX_BUF[USART1_RX_STA&0X7FFF]=0;//添加结束符
+		printf("%s",USART1_RX_BUF);	//发送到串口
+		if(mode)USART1_RX_STA=0;
 	} 
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////// 
@@ -36,10 +36,10 @@ void sim_at_response(u8 mode)
 u8* sim900a_check_cmd(u8 *str)
 {
 	char *strx=0;
-	if(USART2_RX_STA&0X8000)		//接收到一次数据了
+	if(USART1_RX_STA&0X8000)		//接收到一次数据了
 	{ 
-		USART2_RX_BUF[USART2_RX_STA&0X7FFF]=0;//添加结束符
-		strx=strstr((const char*)USART2_RX_BUF,(const char*)str);
+		USART1_RX_BUF[USART1_RX_STA&0X7FFF]=0;//添加结束符
+		strx=strstr((const char*)USART1_RX_BUF,(const char*)str);
 	} 
 	return (u8*)strx;
 }
@@ -52,21 +52,21 @@ u8* sim900a_check_cmd(u8 *str)
 u8 sim900a_send_cmd(u8 *cmd,u8 *ack,u16 waittime)
 {
 	u8 res=0; 
-	USART2_RX_STA=0;
+	USART1_RX_STA=0;
 	if((u32)cmd<=0XFF)
 	{
-		while(DMA1_Channel7->CNDTR!=0);	//等待通道7传输完成   
-		USART2->DR=(u32)cmd;
-	}else u2_printf("%s\r\n",cmd);//发送命令
+		while(DMA1_Channel4->CNDTR!=0);	//等待通道7传输完成   
+		USART1->DR=(u32)cmd;
+	}else u1_printf("%s\r\n",cmd);//发送命令
 	if(ack&&waittime)		//需要等待应答
 	{
 		while(--waittime)	//等待倒计时
 		{
 			delay_ms(10);
-			if(USART2_RX_STA&0X8000)//接收到期待的应答结果
+			if(USART1_RX_STA&0X8000)//接收到期待的应答结果
 			{
 				if(sim900a_check_cmd(ack))break;//得到有效数据 
-				USART2_RX_STA=0;
+				USART1_RX_STA=0;
 			} 
 		}
 		if(waittime==0)res=1; 
@@ -247,7 +247,7 @@ u8 sim900a_call_test(void)
 	while(1)
 	{
 		delay_ms(10);
-		if(USART2_RX_STA&0X8000)		//接收到数据
+		if(USART1_RX_STA&0X8000)		//接收到数据
 		{
 			sim_at_response(0);
 			if(cmode==1||cmode==2)
@@ -266,7 +266,7 @@ u8 sim900a_call_test(void)
 				p2[0]=0;//添加结束符 
 				strcpy((char*)p1,(char*)p);
 			}
-			USART2_RX_STA=0;
+			USART1_RX_STA=0;
 		}
 //		key=sim900a_get_keynum(0,180);
 		if(key)
@@ -276,12 +276,12 @@ u8 sim900a_call_test(void)
 				if(cmode==0&&pohnenumlen<15)
 				{ 
 					callbuf[pohnenumlen++]=kbd_tbl[key-1][0];
-					u2_printf("AT+CLDTMF=2,\"%c\"\r\n",kbd_tbl[key-1][0]); 
+					u1_printf("AT+CLDTMF=2,\"%c\"\r\n",kbd_tbl[key-1][0]); 
 				}else if(cmode==2)//通话中
 				{ 
-					u2_printf("AT+CLDTMF=2,\"%c\"\r\n",kbd_tbl[key-1][0]);
+					u1_printf("AT+CLDTMF=2,\"%c\"\r\n",kbd_tbl[key-1][0]);
 					delay_ms(100);
-					u2_printf("AT+VTS=%c\r\n",kbd_tbl[key-1][0]); 
+					u1_printf("AT+VTS=%c\r\n",kbd_tbl[key-1][0]); 
 //					LCD_ShowChar(40+56,90,kbd_tbl[key-1][0],16,0);
 				}
 			}else
@@ -292,7 +292,7 @@ u8 sim900a_call_test(void)
 					if(cmode==0)//拨号模式
 					{
 						callbuf[pohnenumlen]=0;			//最后加入结束符 
-						u2_printf("ATD%s;\r\n",callbuf);//拨号
+						u1_printf("ATD%s;\r\n",callbuf);//拨号
 						delay_ms(10);		        	//等待10ms  
 						cmode=1;						//拨号中模式
 					}else 
@@ -405,7 +405,7 @@ void sim900a_sms_read_test(void)
 				if(msglen<2)
 				{ 
 					msgindex[msglen++]=kbd_tbl[key-1][0];
-					u2_printf("AT+CLDTMF=2,\"%c\"\r\n",kbd_tbl[key-1][0]); 
+					u1_printf("AT+CLDTMF=2,\"%c\"\r\n",kbd_tbl[key-1][0]); 
 				} 
 				if(msglen==2)
 				{
@@ -433,7 +433,7 @@ void sim900a_sms_read_test(void)
 //						POINT_COLOR=BLUE;
 //						if(strstr((const char*)(USART2_RX_BUF),"UNREAD")==0)Show_Str(30+30,75,200,12,"已读",12,0);
 //						else Show_Str(30+30,75,200,12,"未读",12,0);
-						p1=(u8*)strstr((const char*)(USART2_RX_BUF),",");
+						p1=(u8*)strstr((const char*)(USART1_RX_BUF),",");
 						p2=(u8*)strstr((const char*)(p1+2),"\"");
 						p2[0]=0;//加入结束符
 //						sim900a_unigbk_exchange(p1+2,p,0);			//将unicode字符转换为gbk码 
@@ -452,7 +452,7 @@ void sim900a_sms_read_test(void)
 						delay_ms(1000);
 //						LCD_Fill(30,75,239,75+12,WHITE);//清除显示
 					}	  
-					USART2_RX_STA=0;
+					USART1_RX_STA=0;
 				}
 				if(key==15)break;
 			} 
@@ -464,7 +464,7 @@ void sim900a_sms_read_test(void)
 		{
 			if(sim900a_send_cmd("AT+CPMS?","+CPMS:",200)==0)	//查询优选消息存储器
 			{ 
-				p1=(u8*)strstr((const char*)(USART2_RX_BUF),","); 
+				p1=(u8*)strstr((const char*)(USART1_RX_BUF),","); 
 				p2=(u8*)strstr((const char*)(p1+1),",");
 				p2[0]='/'; 
 				if(p2[3]==',')//小于64K SIM卡，最多存储几十条短信
@@ -478,14 +478,14 @@ void sim900a_sms_read_test(void)
 				}
 				sprintf((char*)p,"%s",p1+1);
 //				Show_Str(30+17*8,50,200,16,p,16,0);
-				USART2_RX_STA=0;		
+				USART1_RX_STA=0;		
 			}
 		}	
 //		if((timex%20)==0)
 //			LED0=!LED0;//200ms闪烁 
 		timex++;
 		delay_ms(10);
-		if(USART2_RX_STA&0X8000)sim_at_response(1);//检查从GSM模块接收到的数据 
+		if(USART1_RX_STA&0X8000)sim_at_response(1);//检查从GSM模块接收到的数据 
 	}
 	myfree(p); 
 }
@@ -511,11 +511,11 @@ void sim900a_sms_send_test(void)
       sprintf((char*)p3,"%.1f",tempperature); 			
 			sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.
 			sprintf((char*)p1,"%s%s%s",sim900a_msg,(char*)p,(char*)"2103"); 
-			u2_printf("%s",p1);              //发送短信内容到GSM模块 
+			u1_printf("%s",p1);              //发送短信内容到GSM模块 
 			delay_ms(50);
 			if(sim900a_send_cmd((u8*)0X1A,"+CMGS:",1000)==0)smssendsta=2;//发送结束符,等待发送完成(最长等待10秒钟,因为短信长了的话,等待时间会长一些)
 		}  
-		USART2_RX_STA=0;
+		USART1_RX_STA=0;
 		smssendsta=0;
 	}else{
 		key =1;
@@ -591,7 +591,7 @@ void sim900a_tcpudp_test(u8 mode,u8* ipaddr,u8* port)
 //	Show_Str(30,100,200,12,"发送数据:",12,0); 	//连接状态
 //	Show_Str(30,115,200,12,"接收数据:",12,0);	//端口固定为8086
 //	POINT_COLOR=BLUE;
-	USART2_RX_STA=0;
+	USART1_RX_STA=0;
 	sprintf((char*)p,"AT+CIPSTART=\"%s\",\"%s\",\"%s\"",modetbl[mode],ipaddr,port);
 	if(sim900a_send_cmd(p,"OK",500))return;		//发起连接
 	while(1)
@@ -608,7 +608,7 @@ void sim900a_tcpudp_test(u8 mode,u8* ipaddr,u8* port)
 			if(sim900a_send_cmd("AT+CIPSEND",">",500)==0)		//发送数据
 			{ 
  				printf("CIPSEND DATA:%s\r\n",p1);	 			//发送数据打印到串口
-				u2_printf("%s\r\n",p1);
+				u1_printf("%s\r\n",p1);
 				delay_ms(10);
 //				if(sim900a_send_cmd((u8*)0X1A,"SEND OK",1000)==0)Show_Str(30+30,80,200,12,"数据发送成功!",12,0);//最长等待10s
 //				else Show_Str(30+30,80,200,12,"数据发送失败!",12,0);
@@ -634,8 +634,8 @@ void sim900a_tcpudp_test(u8 mode,u8* ipaddr,u8* port)
 		if(connectsta==0&&(timex%200)==0)//连接还没建立的时候,每2秒查询一次CIPSTATUS.
 		{
 			sim900a_send_cmd("AT+CIPSTATUS","OK",500);	//查询连接状态
-			if(strstr((const char*)USART2_RX_BUF,"CLOSED"))connectsta=2;
-			if(strstr((const char*)USART2_RX_BUF,"CONNECT OK"))connectsta=1;
+			if(strstr((const char*)USART1_RX_BUF,"CLOSED"))connectsta=2;
+			if(strstr((const char*)USART1_RX_BUF,"CONNECT OK"))connectsta=1;
 		}
 		if(connectsta==1&&timex>=600)//连接正常的时候,每6秒发送一次心跳
 		{
@@ -651,15 +651,15 @@ void sim900a_tcpudp_test(u8 mode,u8* ipaddr,u8* port)
 			printf("hbeaterrcnt:%d\r\n",hbeaterrcnt);//方便调试代码
 		} 
 		delay_ms(10);
-		if(USART2_RX_STA&0X8000)		//接收到一次数据了
+		if(USART1_RX_STA&0X8000)		//接收到一次数据了
 		{ 
-			USART2_RX_BUF[USART2_RX_STA&0X7FFF]=0;	//添加结束符 
-			printf("%s",USART2_RX_BUF);				//发送到串口  
+			USART1_RX_BUF[USART1_RX_STA&0X7FFF]=0;	//添加结束符 
+			printf("%s",USART1_RX_BUF);				//发送到串口  
 			if(hbeaterrcnt)							//需要检测心跳应答
 			{
-				if(strstr((const char*)USART2_RX_BUF,"SEND OK"))hbeaterrcnt=0;//心跳正常
+				if(strstr((const char*)USART1_RX_BUF,"SEND OK"))hbeaterrcnt=0;//心跳正常
 			}				
-			p2=(u8*)strstr((const char*)USART2_RX_BUF,"+IPD");
+			p2=(u8*)strstr((const char*)USART1_RX_BUF,"+IPD");
 			if(p2)//接收到TCP/UDP数据
 			{
 				p3=(u8*)strstr((const char*)p2,",");
@@ -673,7 +673,7 @@ void sim900a_tcpudp_test(u8 mode,u8* ipaddr,u8* port)
 //				LCD_Fill(30,130,210,319,WHITE);
 //				Show_Str(30,130,180,190,p2+1,12,0); //显示接收到的数据 
 			}
-			USART2_RX_STA=0;
+			USART1_RX_STA=0;
 		}
 		if(oldsta!=connectsta)
 		{
@@ -830,12 +830,12 @@ u8 sim900a_gsminfo_show(u16 x,u16 y)
 	u8 res=0;
 	p=mymalloc(50);//申请50个字节的内存
 //	POINT_COLOR=BLUE; 	
-	USART2_RX_STA=0;
+	USART1_RX_STA=0;
 	if(sim900a_send_cmd("AT+CPIN?","OK",200))res|=1<<0;	//查询SIM卡是否在位 
-	USART2_RX_STA=0;  
+	USART1_RX_STA=0;  
 	if(sim900a_send_cmd("AT+COPS?","OK",200)==0)		//查询运营商名字
 	{ 
-		p1=(u8*)strstr((const char*)(USART2_RX_BUF),"\""); 
+		p1=(u8*)strstr((const char*)(USART1_RX_BUF),"\""); 
 		if(p1)//有有效数据
 		{
 			p2=(u8*)strstr((const char*)(p1+1),"\"");
@@ -843,34 +843,34 @@ u8 sim900a_gsminfo_show(u16 x,u16 y)
 			sprintf((char*)p,"运营商:%s",p1+1);
 //			Show_Str(x,y,200,16,p,16,0);
 		} 
-		USART2_RX_STA=0;		
+		USART1_RX_STA=0;		
 	}else res|=1<<1;
 	if(sim900a_send_cmd("AT+CSQ","+CSQ:",200)==0)		//查询信号质量
 	{ 
-		p1=(u8*)strstr((const char*)(USART2_RX_BUF),":");
+		p1=(u8*)strstr((const char*)(USART1_RX_BUF),":");
 		p2=(u8*)strstr((const char*)(p1),",");
 		p2[0]=0;//加入结束符
 		sprintf((char*)p,"信号质量:%s",p1+2);
 //		Show_Str(x,y+20,200,16,p,16,0);
-		USART2_RX_STA=0;		
+		USART1_RX_STA=0;		
 	}else res|=1<<2;
 	if(sim900a_send_cmd("AT+CBC","+CBC:",200)==0)		//查询电池电量
 	{ 
-		p1=(u8*)strstr((const char*)(USART2_RX_BUF),",");
+		p1=(u8*)strstr((const char*)(USART1_RX_BUF),",");
 		p2=(u8*)strstr((const char*)(p1+1),",");
 		p2[0]=0;p2[5]=0;//加入结束符
 		sprintf((char*)p,"电池电量:%s%%  %smV",p1+1,p2+1);
 //		Show_Str(x,y+40,200,16,p,16,0);
-		USART2_RX_STA=0;		
+		USART1_RX_STA=0;		
 	}else res|=1<<3; 
 	if(sim900a_send_cmd("AT+CCLK?","+CCLK:",200)==0)		//查询电池电量
 	{ 
-		p1=(u8*)strstr((const char*)(USART2_RX_BUF),"\"");
+		p1=(u8*)strstr((const char*)(USART1_RX_BUF),"\"");
 		p2=(u8*)strstr((const char*)(p1+1),":");
 		p2[3]=0;//加入结束符
 		sprintf((char*)p,"日期时间:%s",p1+1);
 //		Show_Str(x,y+60,200,16,p,16,0);
-		USART2_RX_STA=0;		
+		USART1_RX_STA=0;		
 	}else res|=1<<4; 
 	myfree(p); 
 	return res;
@@ -879,7 +879,7 @@ u8 Delete_SMS(void)
 {
 	u8 res;
 	if(0 == sim900a_send_cmd("AT+CPMS?","OK",100)){ //查询短信存储量
-		if(USART2_RX_BUF[12] > '0'){
+		if(USART1_RX_BUF[12] > '0'){
 //			res = sim900a_send_cmd("AT+CMGD=1","OK",200);	 //有存储就删除一条短信
 //			  res = sim900a_send_cmd("AT+CMGDA=\"DEL ALL\"","OK",200);	 //有存储就删除一条短信
 			 res = sim900a_send_cmd("AT+CMGF=0","OK",200);	 //PDU模式

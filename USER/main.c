@@ -23,8 +23,7 @@ float tempperature;
 	delay_init();	    	 //延时函数初始化
 	LED_Init();	 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); //设置NVIC中断分组2:2位抢占优先级，2位响应优先级  
-	uart_init(9600);	 	//串口初始化为9600	
-	USART2_Init(115200);
+	USART1_Init(115200);
   mem_init();				//初始化内存池	
 	Gsm_Check_Flag = 0;
 	if(sim900a_start_test() >0){
