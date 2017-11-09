@@ -212,6 +212,10 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 
 [GeneratedDocument1]
+DocumentPath=Project Outputs for WV240-E-D001-MC Rev.1.0\Board Information - WV240-E-D001-MC Rev.1.html
+DItemRevisionGUID=
+
+[GeneratedDocument2]
 DocumentPath=Project Outputs for WV240-E-D001-MC Rev.1.0\Design Rule Check - WV240-E-D001-MC Rev.1.html
 DItemRevisionGUID=
 
