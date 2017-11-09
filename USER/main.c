@@ -21,10 +21,12 @@ float tempperature;
  int main(void)
  {  
 	delay_init();	    	 //延时函数初始化
+  mem_init();				//初始化内存池
 	LED_Init();	 
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); //设置NVIC中断分组2:2位抢占优先级，2位响应优先级  
+  AT24CXX_Init(); 
 	USART1_Init(115200);
-  mem_init();				//初始化内存池	
+  USART2_Config();
+  USART3_Config();
 	Gsm_Check_Flag = 0;
 	if(sim900a_start_test() >0){
 		Gsm_Check_Flag = 1;

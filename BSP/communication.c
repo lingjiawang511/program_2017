@@ -34,7 +34,7 @@ static void Respond_Host_Comm(void)
       if(res != 0){ //不是设备拥有的锁，比如超过范围，直接返回
         return;
       }
-			RE485_SEND;
+			TEMP_RE485_SEND;
 			Usart1_Control_Data.tx_count = 0;	
 			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_start;
 			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.comm;
@@ -47,7 +47,7 @@ static void Respond_Host_Comm(void)
 			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X0D;
 			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X09;
 		}else{	//LRC错误
-			RE485_SEND;
+			TEMP_RE485_SEND;
 			Usart1_Control_Data.tx_count = 0;	
 			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_start;
 			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.comm;

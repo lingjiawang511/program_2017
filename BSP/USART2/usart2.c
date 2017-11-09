@@ -166,7 +166,6 @@ void UART_DMA_Enable(DMA_Channel_TypeDef*DMA_CHx,u16 len)
 	DMA_Cmd(DMA_CHx, ENABLE);           //开启DMA传输
 }
 
-
 void USART1_IRQHandler(void)
 {
 	u8 res;	    
@@ -183,7 +182,8 @@ if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)//接收到数据
 			USART1_RX_STA|=1<<15;					//强制标记接收完成
 		} 
 	}  											 
-}  
+} 
+ 
 
 
 

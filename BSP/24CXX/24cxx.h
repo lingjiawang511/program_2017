@@ -4,14 +4,14 @@
 
 //如果移植程序时只要改一下三个地方就行了
 /* 定时使用的IO口 */
-#define I2C_SCL       GPIO_Pin_2	  
-#define I2C_SDA       GPIO_Pin_3	  
-#define GPIO_I2C      GPIOA
-#define I2C_RCC				RCC_APB2Periph_GPIOA
-// #define I2C_SCL       GPIO_Pin_6	  
-// #define I2C_SDA       GPIO_Pin_7
-// #define GPIO_I2C      GPIOB
-// #define I2C_RCC				RCC_APB2Periph_GPIOB
+// #define I2C_SCL       GPIO_Pin_2	  
+// #define I2C_SDA       GPIO_Pin_3	  
+// #define GPIO_I2C      GPIOA
+// #define I2C_RCC				RCC_APB2Periph_GPIOA
+#define I2C_SCL       GPIO_Pin_6	  
+#define I2C_SDA       GPIO_Pin_7
+#define GPIO_I2C      GPIOB
+#define I2C_RCC				RCC_APB2Periph_GPIOB
 
 #define I2C_SCL_H GPIO_SetBits(GPIO_I2C,I2C_SCL)
 #define I2C_SCL_L GPIO_ResetBits(GPIO_I2C,I2C_SCL)
