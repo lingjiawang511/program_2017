@@ -15,19 +15,19 @@ static u8 openlockflag = 0x41;
 static void Respond_Host_Comm(void)
 {
 		u8 i;
-		u16 lrc;
+		u16 crc;
 	  u8 res;
-		if(Usart1_Control_Data.rx_count < 8){
+		if(Usart2_Control_Data.rx_count < 8){
 				return;
 		}
-		if(Usart1_Control_Data.rxbuf[1] != openlockflag){
+		if(Usart2_Control_Data.rxbuf[1] != openlockflag){
 				return ;
 		}
-		lrc=LRC_GetLRC16(&Usart1_Control_Data.rxbuf[1],Usart1_Control_Data.rx_count-5);
-		if((Usart1_Control_Data.rxbuf[Usart1_Control_Data.rx_count-3]+\
-			Usart1_Control_Data.rxbuf[Usart1_Control_Data.rx_count-4]*256 == lrc)){	 
-			for(i = 0;i < Usart1_Control_Data.rx_count;i++){
-					MCU_Host_Rec.rec_buf[i] = Usart1_Control_Data.rxbuf[i];
+		crc=CRC_GetCCITT(Usart2_Control_Data.rxbuf,Usart2_Control_Data.rx_count - 4);
+		if((Usart2_Control_Data.rxbuf[Usart2_Control_Data.rx_count-3]+\
+			Usart1_Control_Data.rxbuf[Usart1_Control_Data.rx_count-4]*256 == crc)){	 
+			for(i = 0;i < Usart2_Control_Data.rx_count;i++){
+					MCU_Host_Rec.rec_buf[i] = Usart2_Control_Data.rxbuf[i];
 			}//把数据复制给主机通讯结构体,数据正确，先回应主机，记录刷写OLED状态位
 			slave_rec_state = 1;	//从机接收数据正确
 			res = Execute_Host_Comm();  //计算哪个锁将打开
@@ -35,41 +35,33 @@ static void Respond_Host_Comm(void)
         return;
       }
 			TEMP_RE485_SEND;
-			Usart1_Control_Data.tx_count = 0;	
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_start;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.comm;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.addr;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.lockH;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.lockL;
-			lrc=LRC_GetLRC16(&Usart1_Control_Data.txbuf[1],Usart1_Control_Data.tx_count - 1);
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = (lrc>>8)&0xFF; 
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = lrc&0xFF;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X0D;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X09;
-		}else{	//LRC错误
+			Usart2_Control_Data.tx_count = 0;	
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_soh;
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_x;
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = MCU_Host_Rec.control.addr;
+      Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01;
+			crc=LRC_GetLRC16(Usart2_Control_Data.txbuf,Usart2_Control_Data.tx_count);
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = (crc>>8)&0xFF; 
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = crc&0xFF;
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0X0D;
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0X0A;
+		}else{	//CRC错误
 			TEMP_RE485_SEND;
-			Usart1_Control_Data.tx_count = 0;	
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_start;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.comm;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.addr;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0x00;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0x00;
-			lrc=LRC_GetLRC16(&Usart1_Control_Data.txbuf[1],Usart1_Control_Data.tx_count - 1);
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = (lrc>>8)&0xFF; 
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = lrc&0xFF;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X0D;
-			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X09;
-      //校验错误不返回
-      Usart1_Control_Data.tx_count = 0;	
-      Usart1_Control_Data.tx_index = 0;
-      Usart1_Control_Data.rx_aframe = 0;	//清空和主机的通讯，避免通讯错误
-      Usart1_Control_Data.rx_count = 0;	
-      return;
+			Usart2_Control_Data.tx_count = 0;	
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_soh;
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_x;
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = MCU_Host_Rec.control.addr;
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x00;
+			crc=LRC_GetLRC16(Usart2_Control_Data.txbuf,Usart2_Control_Data.tx_count);
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = (crc>>8)&0xFF; 
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = crc&0xFF;
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0X0D;
+			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0X0A;
 		}
-		Usart1_Control_Data.tx_index = 0;	
-		USART_SendData(USART1,Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_index++]);
-		Usart1_Control_Data.rx_aframe = 0;	//清空和主机的通讯，避免通讯错误
-		Usart1_Control_Data.rx_count = 0;	
+		Usart2_Control_Data.tx_index = 0;	
+		USART_SendData(USART2,Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_index++]);
+		Usart2_Control_Data.rx_aframe = 0;	//清空和主机的通讯，避免通讯错误
+		Usart2_Control_Data.rx_count = 0;	
 }
 
 
@@ -82,9 +74,21 @@ static void Respond_Host_Comm(void)
 //=============================================================================
 u8  Execute_Host_Comm(void)
 {
+  u8 i;
   u8 res = 0;
+  u16 crc;
+  static u8 addr_offset = 0,addr_offset_backups = 128;
 	if(slave_rec_state == 1){//执行主机发送的命令
-
+    crc = CRC_GetCCITT(MCU_Host_Rec.control.phone, 11);
+    for(i = 0;i < 11;i++){
+      AT24CXX_WriteOneByte(addr_offset + i,MCU_Host_Rec.control.phone[i]);
+      AT24CXX_WriteOneByte(addr_offset_backups + i,MCU_Host_Rec.control.phone[i]);
+    }
+    AT24CXX_WriteOneByte(addr_offset + i,(crc>>8)&0xFF);
+    AT24CXX_WriteOneByte(addr_offset_backups + i++,(crc>>8)&0xFF);
+    
+    AT24CXX_WriteOneByte(addr_offset + i,crc&0xFF);
+    AT24CXX_WriteOneByte(addr_offset + i,crc&0xFF);    
 		slave_rec_state = 0;
 	}
 	return res;
@@ -92,10 +96,10 @@ u8  Execute_Host_Comm(void)
 
 void Communication_Process(void )
 {
-		if (1 == Usart1_Control_Data.rx_aframe){ 
+		if (1 == Usart2_Control_Data.rx_aframe){ 
 			Respond_Host_Comm();
-			Usart1_Control_Data.rx_count = 0;
-			Usart1_Control_Data.rx_aframe = 0;
+			Usart2_Control_Data.rx_count = 0;
+			Usart2_Control_Data.rx_aframe = 0;
 		}
 }
 

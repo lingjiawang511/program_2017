@@ -202,20 +202,34 @@ u8 I2C_Read_Byte(u8 ack)
 //初始化IIC接口
 void AT24CXX_Init(void)
 {
-	  u8 addrtemp1,addrtemp2;
+	  u8 i;
+    static u8 read_buf[13];
+    static u8 addr_offset = 0,addr_offset_backups = 128;
     I2C_INIT();		 //IIC初始化
     delay_nms(4);
 		if(0 == AT24CXX_Check()){
-				addrtemp1 = AT24CXX_ReadOneByte(0x00);
-			  addrtemp2 = AT24CXX_ReadOneByte(0x01);
-			  if((addrtemp1 == addrtemp2)&&(addrtemp1 < 128)){
-					slaveaddr = addrtemp1;
-				}else{
-					slaveaddr = 0;
-          AT24CXX_WriteOneByte(0x00,0x55);
-          AT24CXX_WriteOneByte(0x01,0x55);
-				}
-		}
+        for(i = 0;i < 13;i++){
+          read_buf[i] = AT24CXX_ReadOneByte(addr_offset + i); 
+        }
+        if((read_buf[11]*256 + read_buf[12]) == CRC_GetCCITT(read_buf,11)){
+            for(i = 0;i < 11;i++){
+              send_phone_gbk[i] = read_buf[i]; 
+            }
+            return;
+        }else{
+            for(i = 0;i < 13;i++){
+              read_buf[i] = AT24CXX_ReadOneByte(addr_offset_backups + i); 
+            }
+            if((read_buf[11]*256 + read_buf[12]) == CRC_GetCCITT(read_buf,11)){
+              for(i = 0;i < 11;i++){
+                send_phone_gbk[i] = read_buf[i]; 
+              }
+              return;
+            }
+        }
+		}else{//IIC读数据错误，不处理即发送的是默认号码
+        
+    }
 }
 
 /*******************************************************************************

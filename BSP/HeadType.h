@@ -140,15 +140,13 @@ typedef struct{
 }Communation_Send_Type;
 //主机接收响应协议字节
 typedef struct{
-	u8  frame_start;
-	u8  comm;
-	u8  addr;
-	u8 lockH;
-	u8 lockL;
-  u8 lrcH;
-  u8 lrcL;
-	u8 frame_end1;
-	u8 frame_end2;
+	u8  frame_soh;
+	u8  frame_x;
+  u8  addr;
+  u8  phone[11];
+	u16 crc16_ccitt; 
+	u8  frame_end1;
+	u8  frame_end2;
 }Communation_Rec_Type;
 
 typedef union{
@@ -158,7 +156,7 @@ typedef union{
 
 typedef union{
 	Communation_Rec_Type control;
-	u8	rec_buf[9];	
+	u8	rec_buf[18];	
 }COMM_Rec_Union_Type;
 
 typedef struct{
@@ -240,7 +238,7 @@ extern u8 Gsm_Check_Flag;
 extern const u8* sim900a_msg;  
 extern const u8* sim900a_myphone_num;
 extern float tempperature;
-
+extern u8 send_phone_gbk[11];
 /*************extern variable end*******************/
 
 /*************function start*******************/

@@ -18,12 +18,16 @@ const u8* sim900a_myphone_num="00310038003500310036003700370030003700330032";
 /* sim900a_myphone_num:短信发送给对方的手机号码，需要转换成Unicode代码后替代以上变量双引号内容即可*/
 float tempperature;
  /* tempperature:短信发送给对方的手机号码，需要转换成Unicode代码后替代以上变量双引号内容即可*/
+u8 send_phone_gbk[11] = {'1','8','5','1','6','7','7','0','7','3','2',};  //GBK格式的短信发送号码
  int main(void)
  {  
+   static u8 buf0[10] = {'1','A','B',0x34,0x35,0x36,0x37,0x38,0x39,0x30};
+   static u8 buf1[256] = {0};
 	delay_init();	    	 //延时函数初始化
   mem_init();				//初始化内存池
 	LED_Init();	 
   AT24CXX_Init(); 
+  sim900a_unigbk_exchange(buf0,buf1,1);
 	USART1_Init(115200);
   USART2_Config();
   USART3_Config();
@@ -37,6 +41,7 @@ float tempperature;
 	while(1){	 
 		sim900a_disproce();
 		sim900a_update_state();
+    Communication_Process();
 	}
 }
 
