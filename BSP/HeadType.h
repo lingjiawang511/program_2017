@@ -7,9 +7,10 @@
 #include "led.h"
 #include "delay.h"
 //#include "exti.h"
+#include "communication.h"
 #include "usart.h"
 #include "TIM.h"
-
+#include "24cxx.h"
 
 /*************Typedef datatype start*******************/
 typedef char int8;
@@ -50,11 +51,7 @@ typedef uint32	ulong;		/**< 32-bit value */
 #define NANSWER_TIME	 1000	  //1000*5ms
 #define NANSWER_NUMOUT	 	 3	  //1000*5ms
 
-#define BEEP_RIGHT_COUNT  3									//RFID正确。蜂鸣器响的次数
-#define BEEP_ERROR_COUNT  5									//RFID错误。蜂鸣器响的次数
-
 #define UPDATE_GSM_TIME   2000
-
 /*************define type end*******************/
 
 /*************union type start*******************/
@@ -101,6 +98,13 @@ typedef enum{
 	WORKEND,
 	END
 }CH_Work_Enum_Type;
+typedef enum{
+	MENU_RESERVE,
+	MENU_READPARAM,
+	MENU_SETPARAM,
+	MENU_SAVEPARAM,
+	MENU_END
+}Menu_Option;
 /*************enum type end*******************/
 
 /*************struct type start*******************/
@@ -120,50 +124,41 @@ typedef struct{
 	u8  frame_soh;
 	u8  frame_x;
 	u16 datasize;
-	u8  RFID_state;
-	u8  RFID_num1;
-	u8  RFID_num2;
-	u8  RFID_num3;
-	u8  RFID_num4;
-	u8  lock1_state;
-	u8  lock2_state;
-	u8  lock3_state;
-	u8  lock4_state;
-	u8  sensor_state;
-	u8  sensor1_state;
-	u8  sensor2_state;
-	u8  sensor3_state;
-	u8  sensor4_state;
-	u8  sensor5_state;
-	u8  sensor6_state;
+	u8  ch1_state;
+	u8  ch1_num;
+	u8  ch2_state;
+	u8  ch2_num;
+	u8  ch3_state;
+	u8  ch3_num;
+	u8  ch4_state;
+	u8  ch4_num;
+	u8  belt_state;
+	u8  belt_time;
 	u16 crc16_ccitt; 
 	u8  frame_end1;
 	u8  frame_end2;
 }Communation_Send_Type;
 //主机接收响应协议字节
 typedef struct{
-	u8  frame_soh;
-	u8  frame_x;
-	u16 datasize;
-	u8  lock1;
-	u8  lock2;
-	u8  lock3;
-	u8  lock4;
-	u8  RFID;
-	u8  check;
-	u16 crc16_ccitt; 
-	u8  frame_end1;
-	u8  frame_end2;
+	u8  frame_start;
+	u8  comm;
+	u8  addr;
+	u8 lockH;
+	u8 lockL;
+  u8 lrcH;
+  u8 lrcL;
+	u8 frame_end1;
+	u8 frame_end2;
 }Communation_Rec_Type;
 
 typedef union{
 	Communation_Send_Type control;
-	u8	send_buf[24];	
+	u8	send_buf[28];	
 }COMM_Send_Union_Type;
 
 typedef union{
 	Communation_Rec_Type control;
-	u8	rec_buf[14];	
+	u8	rec_buf[9];	
 }COMM_Rec_Union_Type;
 
 typedef struct{
@@ -249,14 +244,16 @@ extern float tempperature;
 /*************extern variable end*******************/
 
 /*************function start*******************/
+unsigned char CharToHex(unsigned char bHex);
+unsigned char HexToChar(unsigned char bChar);
 u16 CRC_GetModbus16(u8 *pdata, int len);
 u16 CRC_GetCCITT(u8 *pdata, int len);
+u16 LRC_GetLRC16(u8 *pdata, int len);
 u8 Key_Scan(void);
 void KEY_GPIO_Config(void);
 u16 switch_init_time(void);
-u8 Key_Scan(void);
-void KEY_GPIO_Config(void);
-
+void dispose_key(void );
+void dispose_menu(void);
 /*************function end*******************/
 #endif
 
