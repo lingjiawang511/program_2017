@@ -442,11 +442,6 @@
               <FilePath>..\MALLOC\malloc.c</FilePath>
             </File>
             <File>
-              <FileName>usart2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\BSP\USART2\usart2.c</FilePath>
-            </File>
-            <File>
               <FileName>key.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\BSP\KEY\key.c</FilePath>
@@ -535,6 +530,16 @@
               <FileName>usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SYSTEM\usart\usart.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>remark</GroupName>
+          <Files>
+            <File>
+              <FileName>调试备注.txt</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\调试备注.txt</FilePath>
             </File>
           </Files>
         </Group>
