@@ -6,7 +6,7 @@
 #define       TEMP_RE485_SEND    	    GPIO_SetBits(GPIOB, GPIO_Pin_12)
 #define       TEMP_RE485_REC  				GPIO_ResetBits(GPIOB, GPIO_Pin_12)
 
-#define       PC_RE485_SEND    	      GPIO_SetBits(GPIOA, GPIO_Pin_1)
+#define       PC_RE485_SEND    	      GPIO_SetBits(GPIOA, GPIO_Pin_4)
 #define       PC_RE485_REC  				  GPIO_ResetBits(GPIOA, GPIO_Pin_4)
 
 #define USART_REC_LEN  			200  	//定义最大接收字节数 200

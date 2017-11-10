@@ -36,11 +36,12 @@ u8 send_phone_gbk[11] = {'1','8','5','1','6','7','7','0','7','3','2',};  //GBK¸ñ
 		Gsm_Check_Flag = 1;
 	}
 	TIM2_Config();
+  TIM3_Config();
 	Sim_Send_Flag = 1;
 	tempperature = 96.8;
 	while(1){	 
 		sim900a_disproce();
-		sim900a_update_state();
+// 		sim900a_update_state();
     Communication_Process();
 	}
 }
