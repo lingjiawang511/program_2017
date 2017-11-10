@@ -52,6 +52,8 @@ typedef uint32	ulong;		/**< 32-bit value */
 #define NANSWER_NUMOUT	 	 3	  //1000*5ms
 
 #define UPDATE_GSM_TIME   2000
+#define ADDR_OFFSET   0
+#define PAGE_SIZE     128
 /*************define type end*******************/
 
 /*************union type start*******************/

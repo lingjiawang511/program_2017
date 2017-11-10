@@ -204,7 +204,7 @@ void AT24CXX_Init(void)
 {
 	  u8 i;
     static u8 read_buf[13];
-    static u8 addr_offset = 0,addr_offset_backups = 128;
+    static u8 addr_offset = ADDR_OFFSET,addr_offset_backups = ADDR_OFFSET + PAGE_SIZE;
     I2C_INIT();		 //IIC≥ı ºªØ
     delay_nms(4);
 		if(0 == AT24CXX_Check()){

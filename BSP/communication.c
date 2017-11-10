@@ -73,7 +73,7 @@ u8  Execute_Host_Comm(void)
   u8 i;
   u8 res = 0;
   u16 crc;
-  static u8 addr_offset = 0,addr_offset_backups = 128;
+  static u8 addr_offset = ADDR_OFFSET,addr_offset_backups = ADDR_OFFSET + PAGE_SIZE;
 	if(slave_rec_state == 1){//执行主机发送的命令
     crc = CRC_GetCCITT(MCU_Host_Rec.control.phone, 11);
     for(i = 0;i < 11;i++){
@@ -90,13 +90,39 @@ u8  Execute_Host_Comm(void)
 	}
 	return res;
 }
-
+//=============================================================================
+//函数名称:Execute_Temp_Comm
+//功能概要:执行上位机发出的命令
+//参数说明:无
+//函数返回:无
+//注意    :无
+//=============================================================================
+void  Execute_Temp_Comm(void)
+{
+  		TEMP_RE485_SEND;
+			Usart3_Control_Data.tx_count = 0;	
+			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0x01;
+			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0x58;
+			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0X55;
+      Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0x01;
+			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0X0D;
+			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0X0A;
+  		Usart3_Control_Data.tx_index = 0;	
+      USART_SendData(USART3,Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_index++]);
+      Usart3_Control_Data.rx_aframe = 0;	//清空和主机的通讯，避免通讯错误
+      Usart3_Control_Data.rx_count = 0;	
+}
 void Communication_Process(void )
 {
 		if (1 == Usart2_Control_Data.rx_aframe){ 
 			Respond_Host_Comm();
 			Usart2_Control_Data.rx_count = 0;
 			Usart2_Control_Data.rx_aframe = 0;
+		}
+    if (1 == Usart3_Control_Data.rx_aframe){ 
+			Execute_Temp_Comm();
+			Usart3_Control_Data.rx_count = 0;
+			Usart3_Control_Data.rx_aframe = 0;
 		}
 }
 

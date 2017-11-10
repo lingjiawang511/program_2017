@@ -506,14 +506,15 @@ void sim900a_sms_send_test(void)
 	{  	
 		smssendsta=1;		 
 		sprintf((char*)p2,"AT+CMGS=\"%s\"",sim900a_myphone_num); 
-		if(sim900a_send_cmd(p2,">",200)==0)					//发送短信命令+电话号码
-		{ 		 
+		if(sim900a_send_cmd(p2,">",200)==0){					//发送短信命令+电话号码	 
       sprintf((char*)p3,"%.1f",tempperature); 			
 			sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.
 			sprintf((char*)p1,"%s%s%s",sim900a_msg,(char*)p,(char*)"2103"); 
 			u1_printf("%s",p1);              //发送短信内容到GSM模块 
 			delay_ms(50);
-			if(sim900a_send_cmd((u8*)0X1A,"+CMGS:",1000)==0)smssendsta=2;//发送结束符,等待发送完成(最长等待10秒钟,因为短信长了的话,等待时间会长一些)
+			if(sim900a_send_cmd((u8*)0X1A,"+CMGS:",1000)==0){
+        smssendsta=2;//发送结束符,等待发送完成(最长等待10秒钟,因为短信长了的话,等待时间会长一些)
+      }
 		}  
 		USART1_RX_STA=0;
 		smssendsta=0;
@@ -547,11 +548,9 @@ u8 sim900a_sms_test(void)
 	if(sim900a_send_cmd("AT+CSCS=\"UCS2\"","OK",200))return 2;	//设置TE字符集为UCS2 
 	if(sim900a_send_cmd("AT+CSMP=17,0,2,25","OK",200))return 3;	//设置短消息文本模式参数 
    key = KEY1_PRES;
-		if(key==KEY0_PRES)
-		{ 
+		if(key==KEY0_PRES){ 
 			sim900a_sms_read_test();
-		}else if(key==KEY1_PRES)
-		{ 
+		}else if(key==KEY1_PRES){ 
 			sim900a_sms_send_test();		
 		}
 		delay_ms(10);
@@ -574,7 +573,7 @@ void sim900a_tcpudp_test(u8 mode,u8* ipaddr,u8* port)
 	u8 key;
 	u16 timex=0;
 	u8 count=0;
-	const u8* cnttbl[3]={"正在连接","连接成功","连接关闭"};
+// 	const u8* cnttbl[3]={"正在连接","连接成功","连接关闭"};
 	u8 connectsta=0;			//0,正在连接;1,连接成功;2,连接关闭; 
 	u8 hbeaterrcnt=0;			//心跳错误计数器,连续5次心跳信号无应答,则重新连接
 	u8 oldsta=0XFF;
