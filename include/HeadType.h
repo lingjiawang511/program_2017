@@ -53,7 +53,7 @@ typedef uint32	ulong;		/**< 32-bit value */
 #define NANSWER_NUMOUT	 	 3	  //1000*5ms
 
 #define LOCK_OPEN_TIME	60		//开锁动作执行时间 1000*5ms
-#define LOCK_CLOSE_TIME	40		//开锁动作执行时间 1000*5ms
+#define LOCK_CLOSE_TIME	20		//开锁动作执行时间 1000*5ms
 /*************define type end*******************/
 
 /*************union type start*******************/
@@ -232,7 +232,7 @@ extern  COMM_Rec_Union_Type  MCU_Host_Rec;
 extern  MCU_State_Type MCU_State;
 extern  Answer_Type 	 PC_Answer;
 
-extern u16 Lock_Excute_Time;
+extern int Lock_Excute_Time;
 extern u8 open_lock_count;
 /*************extern variable end*******************/
 

@@ -1,6 +1,6 @@
 #include"HeadType.h"
 
-u16 Lock_Excute_Time;
+int Lock_Excute_Time;
 #define LOCK_SHORT_TIME 		20
 #define LOCK_LONG_TIME			300
 u8 Lock1_State;
@@ -105,9 +105,9 @@ void Lock_control(void )
         Lock_state = LOCK_OPEN_ONE;
       }
 			break ;
-		case LOCK_OPEN_ONE:
-			Lock_Excute_Time = LOCK_OPEN_TIME;
+		case LOCK_OPEN_ONE:	
       Write595_Alllock(0x80000000 >> (32 - open_lock_count));
+    	Lock_Excute_Time = LOCK_OPEN_TIME;
 			Lock_state = LOCK_OPEN_DELAY;
 			break;
     case LOCK_OPEN_DELAY:

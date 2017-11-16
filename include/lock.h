@@ -32,7 +32,7 @@
 #define Delay_595   20
 #define init595()	  { RESET_SH_CLK;RESET_ST_CLK;delay_us(Delay_595);}
 #define Shife595()	{ SET_SH_CLK;delay_us(Delay_595); RESET_SH_CLK;delay_us(Delay_595);}
-#define Out595()	  { SET_ST_CLK;delay_us(Delay_595); RESET_ST_CLK;delay_us(Delay_595);}
+#define Out595()	  { SET_ST_CLK;delay_us(Delay_595*2); RESET_ST_CLK;delay_us(Delay_595*2);}
 
 
 void LOCK_GPIO_Config(void);
