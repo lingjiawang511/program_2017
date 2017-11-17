@@ -495,32 +495,35 @@ void sim900a_sms_read_test(void)
 void sim900a_sms_send_test(void)
 {
 	u8 *p,*p1,*p2,*p3;
-	static u8 key=0;
+  static u8 pnum[44];
 	u8 smssendsta=0;		//短信发送状态,0,等待发送;1,发送失败;2,发送成功 
 	p=mymalloc(100);	//申请100个字节的内存,用于存放电话号码的unicode字符串
 	p1=mymalloc(300);	//申请300个字节的内存,用于存放短信的unicode字符串
 	p2=mymalloc(100);	//申请100个字节的内存 存放：AT+CMGS=p1 
 	p3=mymalloc(50);	//申请100个字节的内存 存放：AT+CMGS=p1 
-	key++;
-	if(key == 1)				//执行发送短信
-	{  	
-		smssendsta=1;		 
-		sprintf((char*)p2,"AT+CMGS=\"%s\"",sim900a_myphone_num); 
-		if(sim900a_send_cmd(p2,">",200)==0){					//发送短信命令+电话号码	 
+  smssendsta=1;		 
+  sim900a_unigbk_exchange(send_phone_gbk,pnum,1);
+  sprintf((char*)p2,"AT+CMGS=\"%s\"",pnum); 
+  if(sim900a_send_cmd(p2,">",200)==0){					//发送短信命令+电话号码	 
+    if(Sim_Send_Flag_test == 0){
       sprintf((char*)p3,"%.1f",tempperature); 			
-			sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.
-			sprintf((char*)p1,"%s%s%s",sim900a_msg,(char*)p,(char*)"2103"); 
-			u1_printf("%s",p1);              //发送短信内容到GSM模块 
-			delay_ms(50);
-			if(sim900a_send_cmd((u8*)0X1A,"+CMGS:",1000)==0){
-        smssendsta=2;//发送结束符,等待发送完成(最长等待10秒钟,因为短信长了的话,等待时间会长一些)
-      }
-		}  
-		USART1_RX_STA=0;
-		smssendsta=0;
-	}else{
-		key =1;
-	}
+      sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.
+      sprintf((char*)p1,"%s%s%s",sim900a_msg,(char*)p,(char*)"2103"); 
+      u1_printf("%s",p1);              //发送短信内容到GSM模块 
+    }else{
+      sprintf((char*)p3,"%.1f",tempperature); 			
+      sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.      
+      sprintf((char*)p1,"%s%s%s",sim900a_msg_test,(char*)p,(char*)"2103"); 
+      u1_printf("%s",p1);
+      Sim_Send_Flag_test = 0;      
+    }
+    delay_ms(50);
+    if(sim900a_send_cmd((u8*)0X1A,"+CMGS:",1000)==0){
+      smssendsta=2;//发送结束符,等待发送完成(最长等待10秒钟,因为短信长了的话,等待时间会长一些)
+    }
+  }  
+  USART1_RX_STA=0;
+  smssendsta=0;
 	myfree(p);
 	myfree(p1);
 	myfree(p2); 

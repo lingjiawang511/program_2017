@@ -35,7 +35,7 @@ static void Respond_Host_Comm(void)
 			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01;
 			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x58;
 			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = MCU_Host_Rec.control.addr;
-      Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01;
+      Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01 + Sim_Send_Flag_test;
 			crc=LRC_GetLRC16(Usart2_Control_Data.txbuf,Usart2_Control_Data.tx_count);
 			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = (crc>>8)&0xFF; 
 			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = crc&0xFF;
@@ -60,7 +60,16 @@ static void Respond_Host_Comm(void)
 		Usart2_Control_Data.rx_count = 0;	
 }
 
-
+u8 cmp_phonenum(u8 *oldnum,u8 *newnum,u8 len)
+{
+  u8 i;
+  for(i = 0;i < len ;i++){
+    if(oldnum[i] != newnum[i]){
+       return 1;
+    }
+  }
+  return 0;
+}
 //=============================================================================
 //函数名称:Execute_Host_Comm
 //功能概要:执行上位机发出的命令
@@ -74,7 +83,12 @@ u8  Execute_Host_Comm(void)
   u8 res = 0;
   u16 crc;
   static u8 addr_offset = ADDR_OFFSET,addr_offset_backups = ADDR_OFFSET + PAGE_SIZE;
+  Sim_Send_Flag_test = 0;
 	if(slave_rec_state == 1){//执行主机发送的命令
+    if (cmp_phonenum(MCU_Host_Rec.control.phone,send_phone_gbk,11) == 1){
+      Sim_Send_Flag_test = 1;
+      Sim_Send_Flag = 1;
+    }
     crc = CRC_GetCCITT(MCU_Host_Rec.control.phone, 11);
     for(i = 0;i < 11;i++){
       send_phone_gbk[i] = MCU_Host_Rec.control.phone[i];//将号码存入GBK数组 
