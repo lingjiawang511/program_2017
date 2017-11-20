@@ -33,7 +33,7 @@ void sim900a_key_staset(u16 x,u16 y,u8 keyx,u8 sta);
 u8 sim900a_get_keynum(u16 x,u16 y);
 u8 sim900a_call_test(void);			//≤¶∫≈≤‚ ‘
 void sim900a_sms_read_test(void);	//∂¡∂Ã–≈≤‚ ‘
-void sim900a_sms_send_test(void);	//∑¢∂Ã–≈≤‚ ‘ 
+u8 sim900a_sms_send_test(void);	//∑¢∂Ã–≈≤‚ ‘ 
 void sim900a_sms_ui(u16 x,u16 y);	//∂Ã–≈≤‚ ‘UIΩÁ√Ê∫Ø ˝
 u8 sim900a_sms_test(void);			//∂Ã–≈≤‚ ‘
 void sim900a_mtest_ui(u16 x,u16 y);	//SIM900A÷˜≤‚ ‘UI

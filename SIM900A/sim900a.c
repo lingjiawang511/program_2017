@@ -492,16 +492,16 @@ void sim900a_sms_read_test(void)
 //测试短信发送内容(70个字[UCS2的时候,1个字符/数字都算1个字])
 //const u8* sim900a_test_msg="您好，这是一条测试短信，由ATK-SIM800 GSM模块发送";
 //SIM900A发短信测试 
-void sim900a_sms_send_test(void)
+u8 sim900a_sms_send_test(void)
 {
 	u8 *p,*p1,*p2,*p3;
   static u8 pnum[44];
-	u8 smssendsta=0;		//短信发送状态,0,等待发送;1,发送失败;2,发送成功 
+	u8 smssendsta=0;		//短信发送状态,0,发送成功;1,发送失败;
 	p=mymalloc(100);	//申请100个字节的内存,用于存放电话号码的unicode字符串
 	p1=mymalloc(300);	//申请300个字节的内存,用于存放短信的unicode字符串
 	p2=mymalloc(100);	//申请100个字节的内存 存放：AT+CMGS=p1 
 	p3=mymalloc(50);	//申请100个字节的内存 存放：AT+CMGS=p1 
-  smssendsta=1;		 
+  smssendsta=0;		 
   sim900a_unigbk_exchange(send_phone_gbk,pnum,1);
   sprintf((char*)p2,"AT+CMGS=\"%s\"",pnum); 
   if(sim900a_send_cmd(p2,">",200)==0){					//发送短信命令+电话号码	 
@@ -519,15 +519,17 @@ void sim900a_sms_send_test(void)
     }
     delay_ms(50);
     if(sim900a_send_cmd((u8*)0X1A,"+CMGS:",1000)==0){
-      smssendsta=2;//发送结束符,等待发送完成(最长等待10秒钟,因为短信长了的话,等待时间会长一些)
+      smssendsta = 0;//发送结束符,等待发送完成(最长等待10秒钟,因为短信长了的话,等待时间会长一些)
+    }else{
+      smssendsta = 1;
     }
   }  
   USART1_RX_STA=0;
-  smssendsta=0;
 	myfree(p);
 	myfree(p1);
 	myfree(p2); 
 	myfree(p3); 
+  return smssendsta;
 } 
 ////sms测试主界面
 //void sim900a_sms_ui(u16 x,u16 y)
@@ -547,19 +549,20 @@ void sim900a_sms_send_test(void)
 u8 sim900a_sms_test(void)
 {
 	u8 key;
+  u8 res = 0;
 	if(sim900a_send_cmd("AT+CMGF=1","OK",200))return 1;			//设置文本模式 
-	if(sim900a_send_cmd("AT+CSCS=\"UCS2\"","OK",200))return 2;	//设置TE字符集为UCS2 
-	if(sim900a_send_cmd("AT+CSMP=17,0,2,25","OK",200))return 3;	//设置短消息文本模式参数 
+	if(sim900a_send_cmd("AT+CSCS=\"UCS2\"","OK",200))return 1;	//设置TE字符集为UCS2 
+	if(sim900a_send_cmd("AT+CSMP=17,0,2,25","OK",200))return 1;	//设置短消息文本模式参数 
    key = KEY1_PRES;
 		if(key==KEY0_PRES){ 
 			sim900a_sms_read_test();
 		}else if(key==KEY1_PRES){ 
-			sim900a_sms_send_test();		
+			res= sim900a_sms_send_test();
 		}
 		delay_ms(10);
 //		sim_at_response(1);										//检查GSM模块发送过来的数据,及时上传给电脑
-	sim900a_send_cmd("AT+CSCS=\"GSM\"","OK",200);				//设置默认的GSM 7位缺省字符集
-	return 0;
+	if(sim900a_send_cmd("AT+CSCS=\"GSM\"","OK",200))return 1;			//设置默认的GSM 7位缺省字符集
+	return res;
 } 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 //GPRS测试部分代码
@@ -941,8 +944,9 @@ void sim900a_disproce(void)
 {
 		if(Sim_Ready){	//SIM卡就绪.
 			if(Sim_Send_Flag){
-				sim900a_sms_test();		//短信测试
-				Sim_Send_Flag = 0;
+				if(0 == sim900a_sms_test()){		//短信发送，成功则清零发送标志，失败的话继续发送
+          Sim_Send_Flag = 0;
+        }
 			}
 		}
 }
