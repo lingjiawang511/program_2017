@@ -505,17 +505,20 @@ u8 sim900a_sms_send_test(void)
   sim900a_unigbk_exchange(send_phone_gbk,pnum,1);
   sprintf((char*)p2,"AT+CMGS=\"%s\"",pnum); 
   if(sim900a_send_cmd(p2,">",200)==0){					//发送短信命令+电话号码	 
-    if(Sim_Send_Flag_test == 0){
+    if(Sim_Send_Msg_Flag == 0){
       sprintf((char*)p3,"%.1f",tempperature); 			
       sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.
       sprintf((char*)p1,"%s%s%s",sim900a_msg,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);              //发送短信内容到GSM模块 
-    }else{
+    }else if(Sim_Send_Msg_Flag == 1){
       sprintf((char*)p3,"%.1f",tempperature); 			
       sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.      
-      sprintf((char*)p1,"%s%s%s",sim900a_msg_test,(char*)p,(char*)"2103"); 
+      sprintf((char*)p1,"%s%s%s",msg_phone_change,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);
-      Sim_Send_Flag_test = 0;      
+      Sim_Send_Msg_Flag = 0;      
+    }else if(Sim_Send_Msg_Flag == 2){
+      u1_printf("%s",p1);
+      Sim_Send_Msg_Flag = 0;
     }
     delay_ms(50);
     if(sim900a_send_cmd((u8*)0X1A,"+CMGS:",1000)==0){

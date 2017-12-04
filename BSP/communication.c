@@ -35,7 +35,7 @@ static void Respond_Host_Comm(void)
 			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01;
 			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x58;
 			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = MCU_Host_Rec.control.addr;
-      Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01 + Sim_Send_Flag_test;
+      Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01 + Sim_Send_Msg_Flag;
 			crc=LRC_GetLRC16(Usart2_Control_Data.txbuf,Usart2_Control_Data.tx_count);
 			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = (crc>>8)&0xFF; 
 			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = crc&0xFF;
@@ -83,10 +83,10 @@ u8  Execute_Host_Comm(void)
   u8 res = 0;
   u16 crc;
   static u8 addr_offset = ADDR_OFFSET,addr_offset_backups = ADDR_OFFSET + PAGE_SIZE;
-  Sim_Send_Flag_test = 0;
+  Sim_Send_Msg_Flag = 0;
 	if(slave_rec_state == 1){//执行主机发送的命令
     if (cmp_phonenum(MCU_Host_Rec.control.phone,send_phone_gbk,11) == 1){
-      Sim_Send_Flag_test = 1;
+      Sim_Send_Msg_Flag = 1;
       Sim_Send_Flag = 1;
     }
     crc = CRC_GetCCITT(MCU_Host_Rec.control.phone, 11);
@@ -113,18 +113,27 @@ u8  Execute_Host_Comm(void)
 //=============================================================================
 void  Execute_Temp_Comm(void)
 {
-  		TEMP_RE485_SEND;
-			Usart3_Control_Data.tx_count = 0;	
-			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0x01;
-			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0x58;
-			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0X55;
-      Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0x01;
-			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0X0D;
-			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0X0A;
-  		Usart3_Control_Data.tx_index = 0;	
-      USART_SendData(USART3,Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_index++]);
-      Usart3_Control_Data.rx_aframe = 0;	//清空和主机的通讯，避免通讯错误
-      Usart3_Control_Data.rx_count = 0;	
+//   		TEMP_RE485_SEND;
+// 			Usart3_Control_Data.tx_count = 0;	
+// 			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0x01;
+// 			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0x58;
+// 			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0X55;
+//       Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0x01;
+// 			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0X0D;
+// 			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0X0A;
+//   		Usart3_Control_Data.tx_index = 0;	
+//       USART_SendData(USART3,Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_index++]);
+    if(Usart3_Control_Data.rx_count != 8){
+        return;
+    }
+    if((Usart3_Control_Data.rxbuf[0] !=0xA5)||(Usart3_Control_Data.rxbuf[1] !=0x5A)||(Usart3_Control_Data.rxbuf[7] !=0x1A)){
+        return;
+    }
+    tempperature = (Usart3_Control_Data.rxbuf[3]*100 + Usart3_Control_Data.rxbuf[4])/10.0;
+    if(Usart3_Control_Data.rxbuf[6] == 0x03){ //低温报警，严重故障
+        Sim_Send_Flag = 1;
+        return;
+    }
 }
 void Communication_Process(void )
 {
