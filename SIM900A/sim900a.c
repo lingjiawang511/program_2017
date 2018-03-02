@@ -505,21 +505,22 @@ u8 sim900a_sms_send_test(void)
   sim900a_unigbk_exchange(send_phone_gbk,pnum,1);
   sprintf((char*)p2,"AT+CMGS=\"%s\"",pnum); 
   if(sim900a_send_cmd(p2,">",200)==0){					//发送短信命令+电话号码	 
-    if(Sim_Send_Msg_Flag == 0){
-      sprintf((char*)p3,"%.1f",tempperature); 			
-      sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.
+		sprintf((char*)p3,"%.1f",tempperature); 			
+    sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.
+    if(Sim_Send_Msg_Flag == 0){//发送测试信息
       sprintf((char*)p1,"%s%s%s",sim900a_msg,(char*)p,(char*)"2103"); 
-      u1_printf("%s",p1);              //发送短信内容到GSM模块 
-    }else if(Sim_Send_Msg_Flag == 1){
-      sprintf((char*)p3,"%.1f",tempperature); 			
-      sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.      
+      u1_printf("%s",p1);               
+    }else if(Sim_Send_Msg_Flag == 1){	//号码改变所发信息  
       sprintf((char*)p1,"%s%s%s",msg_phone_change,(char*)p,(char*)"2103"); 
+      u1_printf("%s",p1);     
+    }else if(Sim_Send_Msg_Flag == 2){  //低温报警所发信息 
+      sprintf((char*)p1,"%s%s%s",msg_temp_low,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);
-      Sim_Send_Msg_Flag = 0;      
-    }else if(Sim_Send_Msg_Flag == 2){
+    }else if(Sim_Send_Msg_Flag == 3){  //高温报警所发信息 
+      sprintf((char*)p1,"%s%s%s",msg_temp_high,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);
-      Sim_Send_Msg_Flag = 0;
     }
+		Sim_Send_Msg_Flag = 0;
     delay_ms(50);
     if(sim900a_send_cmd((u8*)0X1A,"+CMGS:",1000)==0){
       smssendsta = 0;//发送结束符,等待发送完成(最长等待10秒钟,因为短信长了的话,等待时间会长一些)
