@@ -5,6 +5,8 @@ COMM_Rec_Union_Type  MCU_Host_Rec;//MCU作为主机时的结构体接收应答变量
 static u8 slave_rec_state;
 u8 slaveaddr = 1;
 u8 test_sms_addr = 100;
+u32 Mask_Low_Alarm_Time = 0;
+u32 Mask_High_Alarm_Time = 0;
 //=============================================================================
 //函数名称:Respond_Host_Comm
 //功能概要:响应上位机的发出的数据命令，数据已经从串口一接收完整
@@ -135,35 +137,43 @@ void  Execute_Temp_Comm(void)
         return;
     }
     tempperature = (Usart3_Control_Data.rxbuf[3]*100 + Usart3_Control_Data.rxbuf[4])/10.0;
-    if(Usart3_Control_Data.rxbuf[6] == 0x03){ //低温报警，严重故障
-			Sim_Send_Flag = 1;
-			return;
-    }
 		if(tempperature > 100){
 			return;
 		}
-		/**连续N次低温，需要发送短信给客户，后期需要加上报警之后隔多次时间屏蔽报警，
-		否则如果持续低温，会一直隔N次发一次短信报警**/
-		if(tempperature < 2.0){
-			low_temp_alarm++;
-			if(low_temp_alarm >= 10){
+		if(Mask_Low_Alarm_Time == 0){
+			if(Usart3_Control_Data.rxbuf[6] == 0x03){ //低温报警，严重故障,由下位机直接提供
 				Sim_Send_Flag = 1;
 				Sim_Send_Msg_Flag = 2;
+				Mask_Low_Alarm_Time = MASK_LOW_ALARM_TIME;
 				return;
 			}
-		}else{
-			low_temp_alarm = 0;
+		/**连续N次低温，需要发送短信给客户，后期需要加上报警之后隔多次时间屏蔽报警，
+		否则如果持续低温，会一直隔N次发一次短信报警**/
+			if(tempperature < 2.0){
+				low_temp_alarm++;
+				if(low_temp_alarm >= 10){
+					Sim_Send_Flag = 1;
+					Sim_Send_Msg_Flag = 2;
+					Mask_Low_Alarm_Time = MASK_LOW_ALARM_TIME;
+					return;
+				}
+			}else{
+				low_temp_alarm = 0;
+			}
 		}
 		/**连续N次高温，需要发送短信给客户**/
-		if(tempperature > 8.0){
-			high_temp_alarm++;
-			if(high_temp_alarm >= 10){
-				Sim_Send_Flag = 1;
-				Sim_Send_Msg_Flag = 3;
-				return;
+		if(Mask_High_Alarm_Time == 0){
+			if(tempperature > 8.0){
+				high_temp_alarm++;
+				if(high_temp_alarm >= 10){
+					Sim_Send_Flag = 1;
+					Sim_Send_Msg_Flag = 3;
+					Mask_High_Alarm_Time = MASK_HIGH_ALARM_TIME;
+					return;
+				}
+			}else{
+				high_temp_alarm = 0;
 			}
-		}else{
-			high_temp_alarm = 0;
 		}
 }
 void Communication_Process(void )

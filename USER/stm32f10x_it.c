@@ -92,6 +92,12 @@ void TIM2_IRQHandler(void)
 		if(Update_Gsm_Time > 0){
 			Update_Gsm_Time--;
 		}
+		if(Mask_Low_Alarm_Time > 0){
+			Mask_Low_Alarm_Time--;
+		}
+		if(Mask_High_Alarm_Time > 0){
+			Mask_High_Alarm_Time--;
+		}
 		LED_Display();
 		TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);  		 
 	}		 	

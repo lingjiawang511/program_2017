@@ -50,6 +50,9 @@ typedef uint32	ulong;		/**< 32-bit value */
 //无响应超时时间，即当下位机发送数据给上位机，而上位机没有响应的最长时间
 #define NANSWER_TIME	 1000	  //1000*5ms
 #define NANSWER_NUMOUT	 	 3	  //1000*5ms
+#define TIME_S					200			//200*5MS=1S
+#define MASK_LOW_ALARM_TIME			1*30*60*TIME_S    // HOUR*MIN*S*MS
+#define MASK_HIGH_ALARM_TIME		1*30*60*TIME_S    // HOUR*MIN*S*MS
 
 #define UPDATE_GSM_TIME   2000
 #define ADDR_OFFSET   0
@@ -240,11 +243,15 @@ extern u8 Sim_Send_Msg_Flag;
 extern u8 Gsm_Check_Flag;
 extern const u8* sim900a_msg;  
 extern const u8* msg_phone_change;
+extern const u8* msg_device;
 extern const u8* msg_temp_low;
 extern const u8* msg_temp_high;
 extern const u8* sim900a_myphone_num;
 extern float tempperature;
 extern u8 send_phone_gbk[11];
+extern u32 Mask_Low_Alarm_Time;
+extern u32 Mask_High_Alarm_Time;
+extern char Device_ID[5*4];
 /*************extern variable end*******************/
 
 /*************function start*******************/

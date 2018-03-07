@@ -14,8 +14,10 @@ u8 Sim_Send_Msg_Flag;
 /* 注意：使用软件生成Unicode代码时注意去掉空格*/
 const u8* sim900a_msg = "60A8597D002C8BBE59076E295EA65DF28D856E29FF0C5F53524D6E295EA6FF1A";  
 const u8* msg_phone_change = "8BBE59077BA1740653F7780166F46362FF0C8FD9662F4E0067616D4B8BD54FE1606FFF015F53524D6E295EA6FF1A"; //更换号码测试信息
-extern const u8* msg_temp_low = "";
-extern const u8* msg_temp_high = "";
+
+const u8* msg_device = "8BBE59077F1653F7";	//设备编号
+const u8* msg_temp_low = "4F4E6E2962A58B66FF0C5F53524D6E295EA6003A";	//低温报警，当前温度:
+const u8* msg_temp_high = "9AD86E2962A58B66FF0C5F53524D6E295EA6003A";	//高温报警，当前温度:
 /* sim900a_msg:将所要发的中文短信内容转换成Unicode代码后替代以上变量双引号内容即可*/
 const u8* sim900a_myphone_num="00310038003500310036003700370030003700330032";
 //const u8* sim900a_myphone_num="00310038003600320031003100330037003300360039";
@@ -23,6 +25,7 @@ const u8* sim900a_myphone_num="00310038003500310036003700370030003700330032";
 float tempperature;
  /* tempperature:短信发送给对方的手机号码，需要转换成Unicode代码后替代以上变量双引号内容即可*/
 u8 send_phone_gbk[11] = {'1','8','5','1','6','7','7','0','7','3','2',};  //GBK格式的短信发送号码
+char Device_ID[5*4] = {'0','0','3','0','0','0','3','0','0','0','3','1','0','0','3','2','0','0','3','5'};
  int main(void)
  {  
 	delay_init();	    	 //延时函数初始化
