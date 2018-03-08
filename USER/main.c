@@ -25,7 +25,9 @@ const u8* sim900a_myphone_num="00310038003500310036003700370030003700330032";
 float tempperature;
  /* tempperature:短信发送给对方的手机号码，需要转换成Unicode代码后替代以上变量双引号内容即可*/
 u8 send_phone_gbk[11] = {'1','8','5','1','6','7','7','0','7','3','2',};  //GBK格式的短信发送号码
- int main(void)
+ 
+
+int main(void)
  {  
 	delay_init();	    	 //延时函数初始化
   mem_init();				//初始化内存池

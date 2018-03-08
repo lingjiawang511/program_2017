@@ -66,7 +66,7 @@ void TIM2_Config(void )
 			
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
 		TIM_DeInit(TIM2);
-		TIM_TimeBaseStructure.TIM_Period =4999; //5	MS;		 		
+		TIM_TimeBaseStructure.TIM_Period =4999 + 5000; //5	MS;		 		
 		TIM_TimeBaseStructure.TIM_Prescaler = (72 - 1);				  
 		TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 			
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; 

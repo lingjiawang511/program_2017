@@ -250,7 +250,8 @@ extern float tempperature;
 extern u8 send_phone_gbk[11];
 extern u32 Mask_Low_Alarm_Time;
 extern u32 Mask_High_Alarm_Time;
-extern char Device_ID[5*4];
+extern u8 send_device_id[5];
+extern const u8* msg_device;
 
 /*************extern variable end*******************/
 
