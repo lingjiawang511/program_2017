@@ -208,6 +208,7 @@ void AT24CXX_Init(void)
     I2C_INIT();		 //IIC初始化
     delay_nms(4);
 		if(0 == AT24CXX_Check()){
+			//手机号码读取
         for(i = 0;i < 13;i++){
           read_buf[i] = AT24CXX_ReadOneByte(addr_offset + i); 
         }
@@ -215,7 +216,6 @@ void AT24CXX_Init(void)
             for(i = 0;i < 11;i++){
               send_phone_gbk[i] = read_buf[i]; 
             }
-            return;
         }else{
             for(i = 0;i < 13;i++){
               read_buf[i] = AT24CXX_ReadOneByte(addr_offset_backups + i); 
@@ -223,6 +223,25 @@ void AT24CXX_Init(void)
             if((read_buf[11]*256 + read_buf[12]) == CRC_GetCCITT(read_buf,11)){
               for(i = 0;i < 11;i++){
                 send_phone_gbk[i] = read_buf[i]; 
+              }
+            }
+        }
+				//设备序号读取
+			  for(i = 0;i < 13;i++){
+          read_buf[i] = AT24CXX_ReadOneByte(addr_offset + i); 
+        }
+        if((read_buf[11]*256 + read_buf[12]) == CRC_GetCCITT(read_buf,11)){
+            for(i = 0;i < 5;i++){//设备序号只有五位。
+              send_device_id[i] = read_buf[i]; 
+            }
+            return;
+        }else{
+            for(i = 0;i < 13;i++){
+              read_buf[i] = AT24CXX_ReadOneByte(addr_offset_backups + i); 
+            }
+            if((read_buf[11]*256 + read_buf[12]) == CRC_GetCCITT(read_buf,11)){
+              for(i = 0;i < 5;i++){
+                send_device_id[i] = read_buf[i]; 
               }
               return;
             }

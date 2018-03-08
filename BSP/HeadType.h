@@ -55,8 +55,9 @@ typedef uint32	ulong;		/**< 32-bit value */
 #define MASK_HIGH_ALARM_TIME		1*30*60*TIME_S    // HOUR*MIN*S*MS
 
 #define UPDATE_GSM_TIME   1000
-#define ADDR_OFFSET   0
-#define PAGE_SIZE     128
+#define ADDR_OFFSET   			0
+#define DEVICE_ID_OFFSET   50
+#define PAGE_SIZE    			 128
 /*************define type end*******************/
 
 /*************union type start*******************/
@@ -252,7 +253,7 @@ extern u32 Mask_Low_Alarm_Time;
 extern u32 Mask_High_Alarm_Time;
 extern u8 send_device_id[5];
 extern const u8* msg_device;
-
+extern const u8* msg_device_change;
 /*************extern variable end*******************/
 
 /*************function start*******************/

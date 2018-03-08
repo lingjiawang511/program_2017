@@ -15,7 +15,8 @@ u8 Sim_Send_Msg_Flag;
 const u8* sim900a_msg = "60A8597D002C8BBE59076E295EA65DF28D856E29FF0C5F53524D6E295EA6FF1A";  
 const u8* msg_phone_change = "8BBE59077BA1740653F7780166F46362FF0C8FD9662F4E0067616D4B8BD54FE1606FFF015F53524D6E295EA6FF1A"; //更换号码测试信息
 
-const u8* msg_device = "8BBE59077F1653F7";	//设备编号
+const u8* msg_device_change = "8BBE59077F1653F753D866F4FF0C5F53524D";	//设备编号变更，当前
+const u8* msg_device = "8BBE59077F1653F7003A";	//设备编号
 const u8* msg_temp_low = "4F4E6E2962A58B66FF0C5F53524D6E295EA6003A";	//低温报警，当前温度:
 const u8* msg_temp_high = "9AD86E2962A58B66FF0C5F53524D6E295EA6003A";	//高温报警，当前温度:
 /* sim900a_msg:将所要发的中文短信内容转换成Unicode代码后替代以上变量双引号内容即可*/

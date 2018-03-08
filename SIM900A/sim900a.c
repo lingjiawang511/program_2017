@@ -496,7 +496,7 @@ u8 sim900a_sms_send_test(void)
 {
 	u8 *p,*p1,*p2,*p3,*p_device;
   static u8 pnum[44];
-	static u8 pdevice_id[24];
+	static u8 pdevice_id[20];
 	u8 smssendsta=0;		//短信发送状态,0,发送成功;1,发送失败;
 	p=mymalloc(100);	//申请100个字节的内存,用于存放电话号码的unicode字符串
 	p1=mymalloc(300);	//申请300个字节的内存,用于存放短信的unicode字符串
@@ -523,6 +523,9 @@ u8 sim900a_sms_send_test(void)
       u1_printf("%s",p1);
     }else if(Sim_Send_Msg_Flag == 3){  //高温报警所发信息 
       sprintf((char*)p1,"%s%s%s%s",(char*)p_device,msg_temp_high,(char*)p,(char*)"2103"); 
+      u1_printf("%s",p1);
+    }else if(Sim_Send_Msg_Flag == 4){  //设备编号更换所发信息 
+      sprintf((char*)p1,"%s%s",(char*)msg_device_change,(char*)p_device); 
       u1_printf("%s",p1);
     }
 		Sim_Send_Msg_Flag = 0;

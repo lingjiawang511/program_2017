@@ -5,6 +5,7 @@ COMM_Rec_Union_Type  MCU_Host_Rec;//MCU作为主机时的结构体接收应答变量
 static u8 slave_rec_state;
 u8 slaveaddr = 1;
 u8 test_sms_addr = 100;
+u8 device_ID_addr = 101;
 u32 Mask_Low_Alarm_Time = 0;
 u32 Mask_High_Alarm_Time = 0;
 //=============================================================================
@@ -20,7 +21,7 @@ static void Respond_Host_Comm(void)
 		u16 crc;
 	  u8 res;
 		if((Usart2_Control_Data.rx_count < 18)||((Usart2_Control_Data.rxbuf[2] != slaveaddr)&&\
-			(Usart2_Control_Data.rxbuf[2] != test_sms_addr))){
+			(Usart2_Control_Data.rxbuf[2] != test_sms_addr)&&(Usart2_Control_Data.rxbuf[2] != device_ID_addr))){
 				return;
 		}
 		crc=CRC_GetCCITT(Usart2_Control_Data.rxbuf,Usart2_Control_Data.rx_count - 4);
@@ -95,8 +96,22 @@ u8  Execute_Host_Comm(void)
       Sim_Send_Flag = 1;
     }
     crc = CRC_GetCCITT(MCU_Host_Rec.control.phone, 11);
+		if(MCU_Host_Rec.control.addr == 101){
+			addr_offset = DEVICE_ID_OFFSET;
+			addr_offset_backups = DEVICE_ID_OFFSET + PAGE_SIZE;
+			Sim_Send_Msg_Flag = 4;
+      Sim_Send_Flag = 1;
+			for(i = 0;i < 5;i++){
+				send_device_id[i] = MCU_Host_Rec.control.phone[i];
+			}
+		}else{
+			addr_offset = ADDR_OFFSET;
+			addr_offset_backups = ADDR_OFFSET + PAGE_SIZE;
+			for(i = 0;i < 11;i++){
+				send_phone_gbk[i] = MCU_Host_Rec.control.phone[i];//将号码存入GBK数组
+			}
+		}
     for(i = 0;i < 11;i++){
-      send_phone_gbk[i] = MCU_Host_Rec.control.phone[i];//将号码存入GBK数组 
       AT24CXX_WriteOneByte(addr_offset + i,MCU_Host_Rec.control.phone[i]);
       AT24CXX_WriteOneByte(addr_offset_backups + i,MCU_Host_Rec.control.phone[i]);
     }
@@ -104,7 +119,7 @@ u8  Execute_Host_Comm(void)
     AT24CXX_WriteOneByte(addr_offset_backups + i++,(crc>>8)&0xFF);
     
     AT24CXX_WriteOneByte(addr_offset + i,crc&0xFF);
-    AT24CXX_WriteOneByte(addr_offset + i,crc&0xFF);    
+    AT24CXX_WriteOneByte(addr_offset_backups + i,crc&0xFF);    
 		slave_rec_state = 0;
 	}
 	return res;
