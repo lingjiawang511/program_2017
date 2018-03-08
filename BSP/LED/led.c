@@ -26,23 +26,23 @@ void LED_Display(void)
 			Led_Flash_Time++;
 		if(Gsm_Check_Flag ==0){
 		if(Sim_Ready){
-			if(Led_Flash_Time%100 ==0){
+			if(Led_Flash_Time%50 ==0){
 				LED1 = !LED1; //正常的时候闪烁蓝灯
         LED0 = 1;
 			}
 		}else{
-				if(Led_Flash_Time%30 ==0){
+				if(Led_Flash_Time%15 ==0){
 					LED1 = !LED1; //异常的时候闪烁黄灯
           LED0 = 0;
 				}
 			}
 		}else{//初始化不通过
       LED1 = 1;
-			if(Led_Flash_Time<=60){
+			if(Led_Flash_Time<=30){
 				 LED0=0;
-			}else if((60<Led_Flash_Time)&&(Led_Flash_Time < 400)){
+			}else if((30<Led_Flash_Time)&&(Led_Flash_Time < 200)){
 				 LED0=1;
-			}else if(Led_Flash_Time > 400){
+			}else if(Led_Flash_Time > 200){
 				Led_Flash_Time = 0;
 				LED0=0;
       }

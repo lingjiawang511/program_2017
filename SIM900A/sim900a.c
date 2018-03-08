@@ -494,33 +494,33 @@ void sim900a_sms_read_test(void)
 //SIM900A发短信测试 
 u8 sim900a_sms_send_test(void)
 {
-	u8 *p,*p1,*p2,*p3,*p_device;
+	u8 *p,*p1,*p2,*p3;
   static u8 pnum[44];
 	u8 smssendsta=0;		//短信发送状态,0,发送成功;1,发送失败;
 	p=mymalloc(100);	//申请100个字节的内存,用于存放电话号码的unicode字符串
 	p1=mymalloc(300);	//申请300个字节的内存,用于存放短信的unicode字符串
 	p2=mymalloc(100);	//申请100个字节的内存 存放：AT+CMGS=p1 
 	p3=mymalloc(50);	//申请100个字节的内存 存放：AT+CMGS=p1
-  p_device = mymalloc(50);	 
+//   p_device = mymalloc(50);	 
 // 	sprintf((char*)p_device,"%s%s%s",msg_device,(char*)Device_ID,(char*)"FF0C"); 
   smssendsta=1;		
   sim900a_unigbk_exchange(send_phone_gbk,pnum,1);
   sprintf((char*)p2,"AT+CMGS=\"%s\"",pnum); 
-  if(sim900a_send_cmd(p2,">",300)==0){					//发送短信命令+电话号码	
-		sprintf((char*)p_device,"%s%s",msg_device,(char*)"FF0C");	
+  if(sim900a_send_cmd(p2,">",200)==0){					//发送短信命令+电话号码	
+// 		sprintf((char*)p_device,"%s%s",msg_device,(char*)"FF0C");	
 		sprintf((char*)p3,"%.1f",tempperature); 			
     sim900a_unigbk_exchange((u8*)p3,p,1);//将短信内容转换为unicode字符串.
     if(Sim_Send_Msg_Flag == 0){//发送测试信息
-      sprintf((char*)p1,"%s%s%s%s",(char*)p_device,sim900a_msg,(char*)p,(char*)"2103"); 
+      sprintf((char*)p1,"%s%s%s",sim900a_msg,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);               
     }else if(Sim_Send_Msg_Flag == 1){	//号码改变所发信息  
-      sprintf((char*)p1,"%s%s%s%s",(char*)p_device,msg_phone_change,(char*)p,(char*)"2103"); 
+      sprintf((char*)p1,"%s%s%s",msg_phone_change,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);     
     }else if(Sim_Send_Msg_Flag == 2){  //低温报警所发信息 
-      sprintf((char*)p1,"%s%s%s%s",(char*)p_device,msg_temp_low,(char*)p,(char*)"2103"); 
+      sprintf((char*)p1,"%s%s%s",msg_temp_low,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);
     }else if(Sim_Send_Msg_Flag == 3){  //高温报警所发信息 
-      sprintf((char*)p1,"%s%s%s%s",(char*)p_device,msg_temp_high,(char*)p,(char*)"2103"); 
+      sprintf((char*)p1,"%s%s%s",msg_temp_high,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);
     }
 		Sim_Send_Msg_Flag = 0;
@@ -532,7 +532,6 @@ u8 sim900a_sms_send_test(void)
     }
   }  
   USART1_RX_STA=0;
-	myfree(p_device);
 	myfree(p);
 	myfree(p1);
 	myfree(p2); 

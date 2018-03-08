@@ -54,7 +54,7 @@ typedef uint32	ulong;		/**< 32-bit value */
 #define MASK_LOW_ALARM_TIME			1*30*60*TIME_S    // HOUR*MIN*S*MS
 #define MASK_HIGH_ALARM_TIME		1*30*60*TIME_S    // HOUR*MIN*S*MS
 
-#define UPDATE_GSM_TIME   2000
+#define UPDATE_GSM_TIME   1000
 #define ADDR_OFFSET   0
 #define PAGE_SIZE     128
 /*************define type end*******************/
@@ -243,7 +243,6 @@ extern u8 Sim_Send_Msg_Flag;
 extern u8 Gsm_Check_Flag;
 extern const u8* sim900a_msg;  
 extern const u8* msg_phone_change;
-extern const u8* msg_device;
 extern const u8* msg_temp_low;
 extern const u8* msg_temp_high;
 extern const u8* sim900a_myphone_num;
@@ -252,6 +251,7 @@ extern u8 send_phone_gbk[11];
 extern u32 Mask_Low_Alarm_Time;
 extern u32 Mask_High_Alarm_Time;
 extern char Device_ID[5*4];
+
 /*************extern variable end*******************/
 
 /*************function start*******************/
