@@ -99,7 +99,7 @@ u8  Execute_Host_Comm(void)
 		if(MCU_Host_Rec.control.addr == 101){
 			addr_offset = DEVICE_ID_OFFSET;
 			addr_offset_backups = DEVICE_ID_OFFSET + PAGE_SIZE;
-			Sim_Send_Msg_Flag = 4;
+			Sim_Send_Msg_Flag = 2;
       Sim_Send_Flag = 1;
 			for(i = 0;i < 5;i++){
 				send_device_id[i] = MCU_Host_Rec.control.phone[i];
@@ -158,7 +158,7 @@ void  Execute_Temp_Comm(void)
 		if(Mask_Low_Alarm_Time == 0){
 			if(Usart3_Control_Data.rxbuf[6] == 0x03){ //低温报警，严重故障,由下位机直接提供
 				Sim_Send_Flag = 1;
-				Sim_Send_Msg_Flag = 2;
+				Sim_Send_Msg_Flag = 3;
 				Mask_Low_Alarm_Time = MASK_LOW_ALARM_TIME;
 				return;
 			}
@@ -168,7 +168,7 @@ void  Execute_Temp_Comm(void)
 				low_temp_alarm++;
 				if(low_temp_alarm >= 10){
 					Sim_Send_Flag = 1;
-					Sim_Send_Msg_Flag = 2;
+					Sim_Send_Msg_Flag = 3;
 					Mask_Low_Alarm_Time = MASK_LOW_ALARM_TIME;
 					return;
 				}
@@ -182,7 +182,7 @@ void  Execute_Temp_Comm(void)
 				high_temp_alarm++;
 				if(high_temp_alarm >= 10){
 					Sim_Send_Flag = 1;
-					Sim_Send_Msg_Flag = 3;
+					Sim_Send_Msg_Flag = 4;
 					Mask_High_Alarm_Time = MASK_HIGH_ALARM_TIME;
 					return;
 				}

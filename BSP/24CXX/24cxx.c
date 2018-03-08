@@ -227,6 +227,8 @@ void AT24CXX_Init(void)
             }
         }
 				//…Ë±∏–Ú∫≈∂¡»°
+				addr_offset = DEVICE_ID_OFFSET;
+				addr_offset_backups = DEVICE_ID_OFFSET + PAGE_SIZE;
 			  for(i = 0;i < 13;i++){
           read_buf[i] = AT24CXX_ReadOneByte(addr_offset + i); 
         }

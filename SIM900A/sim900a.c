@@ -518,14 +518,15 @@ u8 sim900a_sms_send_test(void)
     }else if(Sim_Send_Msg_Flag == 1){	//号码改变所发信息  
       sprintf((char*)p1,"%s%s%s%s",(char*)p_device,msg_phone_change,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);     
-    }else if(Sim_Send_Msg_Flag == 2){  //低温报警所发信息 
+    }else if(Sim_Send_Msg_Flag == 3){  //低温报警所发信息 
       sprintf((char*)p1,"%s%s%s%s",(char*)p_device,msg_temp_low,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);
-    }else if(Sim_Send_Msg_Flag == 3){  //高温报警所发信息 
+    }else if(Sim_Send_Msg_Flag == 4){  //高温报警所发信息 
       sprintf((char*)p1,"%s%s%s%s",(char*)p_device,msg_temp_high,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);
-    }else if(Sim_Send_Msg_Flag == 4){  //设备编号更换所发信息 
-      sprintf((char*)p1,"%s%s",(char*)msg_device_change,(char*)p_device); 
+    }else if(Sim_Send_Msg_Flag == 2){  //设备编号更换所发信息 
+      sprintf((char*)p1,"%s%s%s%s%s",(char*)msg_device_change,\
+			(char*)p_device,msg_temp_describe,(char*)p,(char*)"2103"); 
       u1_printf("%s",p1);
     }
 		Sim_Send_Msg_Flag = 0;

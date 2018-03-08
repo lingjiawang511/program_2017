@@ -254,6 +254,7 @@ extern u32 Mask_High_Alarm_Time;
 extern u8 send_device_id[5];
 extern const u8* msg_device;
 extern const u8* msg_device_change;
+extern const u8* msg_temp_describe;
 /*************extern variable end*******************/
 
 /*************function start*******************/
