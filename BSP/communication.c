@@ -94,12 +94,16 @@ u8  Execute_Host_Comm(void)
 			(MCU_Host_Rec.control.addr == 100)){
       Sim_Send_Msg_Flag = 1;
       Sim_Send_Flag = 1;
+			Mask_Low_Alarm_Time = 0;
+			Mask_High_Alarm_Time = 0;
     }
     crc = CRC_GetCCITT(MCU_Host_Rec.control.phone, 11);
 		if(MCU_Host_Rec.control.addr == 101){
 			addr_offset = DEVICE_ID_OFFSET;
 			addr_offset_backups = DEVICE_ID_OFFSET + PAGE_SIZE;
 			Sim_Send_Msg_Flag = 2;
+			Mask_Low_Alarm_Time = 0;
+			Mask_High_Alarm_Time = 0;
       Sim_Send_Flag = 1;
 			for(i = 0;i < 5;i++){
 				send_device_id[i] = MCU_Host_Rec.control.phone[i];
