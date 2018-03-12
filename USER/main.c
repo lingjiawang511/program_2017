@@ -45,7 +45,7 @@ int main(void)
 	TIM2_Config();
   TIM3_Config();
 //  	Sim_Send_Flag = 1;
-	tempperature = 96.8;
+	tempperature = 6.8;
 	while(1){	 
 		sim900a_disproce();
 		sim900a_update_state();
