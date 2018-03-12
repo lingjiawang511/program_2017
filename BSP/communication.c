@@ -174,6 +174,7 @@ void  Execute_Temp_Comm(void)
 					Sim_Send_Flag = 1;
 					Sim_Send_Msg_Flag = 3;
 					Mask_Low_Alarm_Time = MASK_LOW_ALARM_TIME;
+					low_temp_alarm = 0;
 					return;
 				}
 			}else{
@@ -187,6 +188,7 @@ void  Execute_Temp_Comm(void)
 				if(high_temp_alarm >= 10){
 					Sim_Send_Flag = 1;
 					Sim_Send_Msg_Flag = 4;
+					high_temp_alarm = 0;
 					Mask_High_Alarm_Time = MASK_HIGH_ALARM_TIME;
 					return;
 				}
