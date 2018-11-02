@@ -8,6 +8,7 @@ u8 test_sms_addr = 100;
 u8 device_ID_addr = 101;
 u32 Mask_Low_Alarm_Time = 0;
 u32 Mask_High_Alarm_Time = 0;
+static u8 Temp_Rev_Savebuf[8];
 //=============================================================================
 //函数名称:Respond_Host_Comm
 //功能概要:响应上位机的发出的数据命令，数据已经从串口一接收完整
@@ -20,32 +21,54 @@ static void Respond_Host_Comm(void)
 		u8 i;
 		u16 crc;
 	  u8 res;
-		if((Usart2_Control_Data.rx_count < 18)||((Usart2_Control_Data.rxbuf[2] != slaveaddr)&&\
-			(Usart2_Control_Data.rxbuf[2] != test_sms_addr)&&(Usart2_Control_Data.rxbuf[2] != device_ID_addr))){
-				return;
+// 		if((Usart2_Control_Data.rx_count < 18)||((Usart2_Control_Data.rxbuf[2] != slaveaddr)&&\
+// 			(Usart2_Control_Data.rxbuf[2] != test_sms_addr)&&(Usart2_Control_Data.rxbuf[2] != device_ID_addr))){
+// 				return;
+// 		}
+		if(((Usart2_Control_Data.rxbuf[2] != 0)&&(Usart2_Control_Data.rxbuf[2] != slaveaddr))||((Usart2_Control_Data.rxbuf[4]*256 + Usart2_Control_Data.rxbuf[5]) != Usart2_Control_Data.rx_count - 10)){
+				return ;
 		}
 		crc=CRC_GetCCITT(Usart2_Control_Data.rxbuf,Usart2_Control_Data.rx_count - 4);
 		if((Usart2_Control_Data.rxbuf[Usart2_Control_Data.rx_count-3]+\
-			Usart2_Control_Data.rxbuf[Usart2_Control_Data.rx_count-4]*256 == crc)){	 
-			for(i = 0;i < Usart2_Control_Data.rx_count;i++){
-					MCU_Host_Rec.rec_buf[i] = Usart2_Control_Data.rxbuf[i];
-			}//把数据复制给主机通讯结构体
-			slave_rec_state = 1;	//从机接收数据正确
-			res = Execute_Host_Comm();  
-      if(res != 0){ 
-        return;
-      }
-			PC_RE485_SEND;
-			Usart2_Control_Data.tx_count = 0;	
-			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01;
-			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x58;
-			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = MCU_Host_Rec.control.addr;
-      Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01 + Sim_Send_Msg_Flag;
-			crc=LRC_GetLRC16(Usart2_Control_Data.txbuf,Usart2_Control_Data.tx_count);
-			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = (crc>>8)&0xFF; 
-			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = crc&0xFF;
-			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0X0D;
-			Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0X0A;
+			Usart2_Control_Data.rxbuf[Usart2_Control_Data.rx_count-4]*256 == crc)){
+			if(Usart2_Control_Data.rxbuf[3] != 0x02){
+				for(i = 0;i < Usart2_Control_Data.rx_count;i++){
+						MCU_Host_Rec.rec_buf[i] = Usart2_Control_Data.rxbuf[i];
+				}//把数据复制给主机通讯结构体
+				slave_rec_state = 1;	//从机接收数据正确
+				res = Execute_Host_Comm();  
+				if(res != 0){ 
+					return;
+				}
+				PC_RE485_SEND;
+				Usart2_Control_Data.tx_count = 0;	
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01;
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x58;
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = MCU_Host_Rec.control.addr;
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01 + Sim_Send_Msg_Flag;
+				crc=LRC_GetLRC16(Usart2_Control_Data.txbuf,Usart2_Control_Data.tx_count);
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = (crc>>8)&0xFF; 
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = crc&0xFF;
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0X0D;
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0X0A;
+			}else{//上位机查询疫苗柜温度
+				PC_RE485_SEND;
+				Usart2_Control_Data.tx_count = 0;	
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x01;
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x58;
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = Usart1_Control_Data.rxbuf[2];
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = Usart1_Control_Data.rxbuf[3];
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x00;
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x08;
+				for(i=0;i<8;i++){
+					Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = Temp_Rev_Savebuf[i];
+				}
+				crc=LRC_GetLRC16(Usart2_Control_Data.txbuf,Usart2_Control_Data.tx_count);
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = (crc>>8)&0xFF; 
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = crc&0xFF;
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0X0D;
+				Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0X0A;			
+			}
 		}else{	//CRC错误
 			PC_RE485_SEND;
 			Usart2_Control_Data.tx_count = 0;	
@@ -139,6 +162,7 @@ void  Execute_Temp_Comm(void)
 {
 	static u8 low_temp_alarm = 0;
 	static u8 high_temp_alarm = 0;
+	u8 i;
 //   		TEMP_RE485_SEND;
 // 			Usart3_Control_Data.tx_count = 0;	
 // 			Usart3_Control_Data.txbuf[Usart3_Control_Data.tx_count++] = 0x01;
@@ -155,6 +179,9 @@ void  Execute_Temp_Comm(void)
     if((Usart3_Control_Data.rxbuf[0] !=0xA5)||(Usart3_Control_Data.rxbuf[1] !=0x5A)||(Usart3_Control_Data.rxbuf[7] !=0x1A)){
         return;
     }
+		for(i=0;i<8;i++){
+			Temp_Rev_Savebuf[i] = Usart3_Control_Data.rxbuf[i];
+		}
     tempperature = (Usart3_Control_Data.rxbuf[3]*100 + Usart3_Control_Data.rxbuf[4])/10.0;
 		if(tempperature > 100){
 			return;

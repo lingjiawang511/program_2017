@@ -149,6 +149,9 @@ typedef struct{
 	u8  frame_soh;
 	u8  frame_x;
   u8  addr;
+	u8  comm;
+	u8  datasizeH;
+	u8  datasizeL;
   u8  phone[11];
 	u16 crc16_ccitt; 
 	u8  frame_end1;
@@ -162,7 +165,7 @@ typedef union{
 
 typedef union{
 	Communation_Rec_Type control;
-	u8	rec_buf[18];	
+	u8	rec_buf[18+3];	
 }COMM_Rec_Union_Type;
 
 typedef struct{
