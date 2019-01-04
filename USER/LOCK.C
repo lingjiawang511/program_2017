@@ -99,8 +99,14 @@ void Lock_control(void )
     LOCK_OPEN_DELAY,
 		LOCK_CLOSE,
 	}Lock_state = LOCK_READY;
+	static u8 test = 0;
 	switch(Lock_state){
 		case LOCK_READY:
+			test++;
+			if(test > 32){
+				test = 0;
+			}
+			open_lock_count = test;
       if(open_lock_count > 0){
         Lock_state = LOCK_OPEN_ONE;
       }

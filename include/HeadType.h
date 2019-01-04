@@ -10,7 +10,8 @@
 #include "usart.h"
 #include "TIM.h"
 #include "communication.h"
-#include "lock.H"
+#include "lock.h"
+#include "lock_state.h"
 #include "24cxx.h" 
 
 /*************Typedef datatype start*******************/

@@ -12,12 +12,14 @@ void delay_ms1(u16 ms)
 		;
 	}
 }
+static u32 lock_state=0;
 //配置时钟在target宏定义
 int main(void)
 {
 		delay_init();
   	LED_GPIO_Config();
     LOCK_GPIO_Config();
+		LOCK_STATE_GPIO_Config();
 		USART1_Config();
     USART2_Config();
     TIM2_Config();
@@ -26,6 +28,8 @@ int main(void)
     while(1){
       Communication_Process();
       Lock_control();
+			lock_state = Read165_Allstate();
+			delay_ms(10);
 		}       
 }
 
