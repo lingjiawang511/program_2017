@@ -1,14 +1,8 @@
 #include"HeadType.h"
 
-// int Lock_Excute_Time;
-// #define LOCK_SHORT_TIME 		20
-// #define LOCK_LONG_TIME			300
-// u8 Lock1_State;
-// u8 Lock2_State;
-// u16 lock1_time;
-// u16 lock2_time;
-// u8 open_lock_count = 0;
-// void Write595_Alllock(u32 lockdata);
+u16 lock_state_decection_time;
+u32 Lock_Actual_State;
+
 //=============================================================================
 //函数名称: LED_GPIO_Config
 //功能概要:LED灯引脚配置
@@ -39,6 +33,7 @@ void LOCK_STATE_GPIO_Config(void)
 	GPIO_Init(STATE_DS_PORT, &GPIO_InitStructure);
 
   init165();
+	lock_state_decection_time = LOCK_STATE_DETECTION_TIME;
 }
 
 
@@ -70,8 +65,8 @@ u8 Read165_byte(void)
 u32 Read165_Allstate(void)
 {
 	u8 i;
-	static u8 rdatabyte;
-	static u32 rdata;
+	u8 rdatabyte;
+	u32 rdata;
 	
 	rdata = 0;
 	load165data();
@@ -82,43 +77,45 @@ u32 Read165_Allstate(void)
 	}
 	return rdata;
 }
-// void Lock_control(void )
-// {
-// 	static enum{
-// 		LOCK_READY,
-// 		LOCK_OPEN_ONE,
-//     LOCK_OPEN_DELAY,
-// 		LOCK_CLOSE,
-// 	}Lock_state = LOCK_READY;
-// 	switch(Lock_state){
-// 		case LOCK_READY:
-//       if(open_lock_count > 0){
-//         Lock_state = LOCK_OPEN_ONE;
-//       }
-// 			break ;
-// 		case LOCK_OPEN_ONE:	
-//       Write595_Alllock(0x80000000 >> (32 - open_lock_count));
-//     	Lock_Excute_Time = LOCK_OPEN_TIME;
-// 			Lock_state = LOCK_OPEN_DELAY;
-// 			break;
-//     case LOCK_OPEN_DELAY:
-//       if(Lock_Excute_Time == 0){
-//         Write595_Alllock(0x00000000);
-//         Lock_Excute_Time = LOCK_CLOSE_TIME;
-//         Lock_state = LOCK_CLOSE;
-//       }
-//       break;
-// 		case LOCK_CLOSE:
-//       if(Lock_Excute_Time == 0){
-//         open_lock_count = 0;
-//         Lock_state = LOCK_READY;
-//       }
-// 			break;
-// 		default :
-// 			break;
+void Lock_Detection_Control(void )
+{
+	static enum{
+		LOCK_DETECTION_READY,
+		LOCK_DETECTION_FIRST,
+    LOCK_DETECTION_SECOND,
+		LOCK_DETECTION_COMPLETE,
+	}Lock_detection_state = LOCK_DETECTION_READY;
+	static u32 lock_state1,lock_state2;
+	switch(Lock_detection_state){
+		case LOCK_DETECTION_READY:
+				Lock_detection_state = LOCK_DETECTION_FIRST;
+		    lock_state_decection_time = LOCK_STATE_DETECTION_TIME;
+			break ;
+		case LOCK_DETECTION_FIRST:	
+      if(lock_state_decection_time == 0){
+				lock_state1 = Read165_Allstate();
+				lock_state_decection_time = LOCK_STATE_DETECTION_TIME;
+				Lock_detection_state = LOCK_DETECTION_SECOND;
+			}
+			break;
+    case LOCK_DETECTION_SECOND:
+      if(lock_state_decection_time == 0){
+				lock_state2 = Read165_Allstate();
+				Lock_detection_state = LOCK_DETECTION_COMPLETE;
+			}
+      break;
+		case LOCK_DETECTION_COMPLETE:
+				if(lock_state1 == lock_state2){
+					Lock_Actual_State = lock_state1;
+				}
+				Lock_detection_state = LOCK_DETECTION_READY;
+			break;
+		default :
+			Lock_detection_state = LOCK_DETECTION_READY;
+			break;
 
-// 	}
-// }
+	}
+}
 
 
 

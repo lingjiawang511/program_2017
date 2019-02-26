@@ -28,8 +28,9 @@ int main(void)
     while(1){
       Communication_Process();
       Lock_control();
-			lock_state = Read165_Allstate();
-			delay_ms(10);
+			Lock_Detection_Control();
+// 			lock_state = Read165_Allstate();
+// 			delay_ms(10);
 		}       
 }
 

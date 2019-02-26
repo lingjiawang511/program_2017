@@ -55,6 +55,7 @@ typedef uint32	ulong;		/**< 32-bit value */
 
 #define LOCK_OPEN_TIME	60		//开锁动作执行时间 1000*5ms
 #define LOCK_CLOSE_TIME	20		//开锁动作执行时间 1000*5ms
+#define LOCK_STATE_DETECTION_TIME		40
 /*************define type end*******************/
 
 /*************union type start*******************/
@@ -235,6 +236,8 @@ extern  Answer_Type 	 PC_Answer;
 
 extern int Lock_Excute_Time;
 extern u8 open_lock_count;
+extern u16 lock_state_decection_time;
+extern u32 Lock_Actual_State;
 /*************extern variable end*******************/
 
 /*************function start*******************/
@@ -248,6 +251,7 @@ void KEY_GPIO_Config(void);
 u16 switch_init_time(void);
 void dispose_key(void );
 void dispose_menu(void);
+void Lock_Detection_Control(void );
 /*************function end*******************/
 #endif
 
