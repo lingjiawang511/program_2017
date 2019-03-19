@@ -441,6 +441,11 @@
               <FileType>1</FileType>
               <FilePath>..\USER\LOCK.C</FilePath>
             </File>
+            <File>
+              <FileName>LOCK_STATE.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\LOCK_STATE.C</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

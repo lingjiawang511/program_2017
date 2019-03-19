@@ -154,7 +154,10 @@ void TIM2_IRQHandler(void)
 			if(lock_state_decection_time > 0){
 				lock_state_decection_time--;
 			}
-				
+			if(Read_Sensor_Time >0){
+				Read_Sensor_Time--;
+			}	
+		
 			TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);  		 
 	}		 	
 }

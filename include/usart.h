@@ -4,9 +4,10 @@
 #include "stm32f10x.h"
 #include "stdio.h"
 
-#define       RE485_SEND    	  GPIO_SetBits(GPIOA, GPIO_Pin_11)
-#define       RE485_REC  				GPIO_ResetBits(GPIOA, GPIO_Pin_11)
-
+#define       RE485_SEND    	 		 	GPIO_SetBits(GPIOA, GPIO_Pin_11)
+#define       RE485_REC  						GPIO_ResetBits(GPIOA, GPIO_Pin_11)
+#define       SENSOR_RE485_SEND    	GPIO_SetBits(GPIOA, GPIO_Pin_4)
+#define       SENSOR_RE485_REC  		GPIO_ResetBits(GPIOA, GPIO_Pin_4)
 
 
 void USART1_IRQHandler(void);	

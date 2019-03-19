@@ -12,7 +12,9 @@ void delay_ms1(u16 ms)
 		;
 	}
 }
+extern void Communication_GPIO_Config(void);
 static u32 lock_state=0;
+void test_lrc(void);
 //配置时钟在target宏定义
 int main(void)
 {
@@ -20,10 +22,12 @@ int main(void)
   	LED_GPIO_Config();
     LOCK_GPIO_Config();
 		LOCK_STATE_GPIO_Config();
+	  Communication_GPIO_Config();
 		USART1_Config();
     USART2_Config();
     TIM2_Config();
-    TIM3_Config();	
+    TIM3_Config();
+		test_lrc();
 		delay_ms(100);
     while(1){
       Communication_Process();
@@ -34,6 +38,22 @@ int main(void)
 		}       
 }
 
+void test_lrc(void)
+{
+	static u16 testlrc = 0;
+	static u8 testbuf[20];
+	static u8 testcount = 0;
 
+	testcount = testcount;
+	testlrc =testlrc;
+	
+	testbuf[testcount++] = 0x40;
+	testbuf[testcount++] = 0x4D;
+	testbuf[testcount++] = 0x31;
+	testbuf[testcount++] = 0x30;
+	testbuf[testcount++] = 0x31;
+	testlrc=LRC_GetLRC16(&testbuf[1],testcount - 1);
+
+}
 
 

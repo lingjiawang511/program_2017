@@ -232,7 +232,7 @@ void USART2_Config(void)
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
     
 
-	USART_InitStructure.USART_BaudRate = 19200; 			 
+	USART_InitStructure.USART_BaudRate = 9600; 			 
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;	   
 	USART_InitStructure.USART_Parity = USART_Parity_No; 	  
@@ -416,10 +416,11 @@ void USART1_Do_Tx(void )
 //=============================================================================
 void USART2_Do_Tx(void )
 {
-    if (Usart2_Control_Data.tx_index < Usart2_Control_Data.tx_count) {
-		USART_SendData(USART2, Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_index]);
-		Usart2_Control_Data.tx_index++;
+  if (Usart2_Control_Data.tx_index < Usart2_Control_Data.tx_count) {
+			USART_SendData(USART2, Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_index]);
+			Usart2_Control_Data.tx_index++;
 	}else{
+			 SENSOR_RE485_REC;
        Usart2_Control_Data.tx_count = 0; 
        Usart2_Control_Data.tx_index = 0;	   
     }
