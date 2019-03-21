@@ -43,16 +43,20 @@ void test_lrc(void)
 	static u16 testlrc = 0;
 	static u8 testbuf[20];
 	static u8 testcount = 0;
-
+  u8 i,j;
 	testcount = testcount;
 	testlrc =testlrc;
-	
-	testbuf[testcount++] = 0x40;
-	testbuf[testcount++] = 0x4D;
-	testbuf[testcount++] = 0x31;
-	testbuf[testcount++] = 0x30;
-	testbuf[testcount++] = 0x31;
-	testlrc=LRC_GetLRC16(&testbuf[1],testcount - 1);
+	for(j=0;j<4;j++){
+		for(i=0;i<10;i++){
+			testcount = 0;
+			testbuf[testcount++] = 0x40;
+			testbuf[testcount++] = 0x4D;
+			testbuf[testcount++] = 0x31;
+			testbuf[testcount++] = 0x31 +j;
+			testbuf[testcount++] = 0x30 + i;
+			testlrc=LRC_GetLRC16(&testbuf[1],testcount - 1);
+		}
+	}
 
 }
 
