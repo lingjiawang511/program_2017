@@ -52,7 +52,7 @@ void test_lrc(void)
 			testbuf[testcount++] = 0x40;
 			testbuf[testcount++] = 0x4D;
 			testbuf[testcount++] = 0x31;
-			testbuf[testcount++] = 0x31 +j;
+			testbuf[testcount++] = 0x32 +j;
 			testbuf[testcount++] = 0x30 + i;
 			testlrc=LRC_GetLRC16(&testbuf[1],testcount - 1);
 		}

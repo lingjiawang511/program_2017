@@ -7,6 +7,7 @@ u8 slaveaddr = 3;
 static u8 openlockflag = 0x41;
 
 u16 Read_Sensor_Time = READ_SENSOR_TIME;
+u16 Check_Lock_State_Time = CHECK_LOCK_STATE_TIME;
 u16 Temp_Data = 0;
 u16 Humi_Data = 0;
 #define  	SENSOR_ADDR				0X01
@@ -52,7 +53,10 @@ static void Respond_Host_Comm(void)
 			for(i = 0;i < Usart1_Control_Data.rx_count;i++){
 					MCU_Host_Rec.rec_buf[i] = Usart1_Control_Data.rxbuf[i];
 			}//把数据复制给主机通讯结构体,数据正确，先回应主机，记录刷写OLED状态位
-				slave_rec_state = 1;	//从机接收数据正确
+			slave_rec_state = 1;	//从机接收数据正确
+			
+		 while(Usart1_Control_Data.tx_count!=0);
+			
 		 if(MCU_Host_Rec.control.comm == 0x41){//'A'
 				res = Execute_Host_Comm();  //计算哪个锁将打开
 				if(res != 0){ //不是设备拥有的锁，比如超过范围，直接返回
@@ -125,6 +129,11 @@ static void Respond_Host_Comm(void)
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = lrc&0xFF;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X0D;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X09;
+			}else if(MCU_Host_Rec.control.comm == 0x53){//下位机回复主动发送锁状态，默认不处理
+				
+				Usart1_Control_Data.rx_aframe = 0;	//清空和主机的通讯，避免通讯错误
+				Usart1_Control_Data.rx_count = 0;	
+				return;
 			}
 		}else{	//LRC错误
 			RE485_SEND;
@@ -196,7 +205,6 @@ static void send_data_to_read_sensor(void)
 }
 void Dispose_Humiture_Sensor_Data(void)
 {
-		u8 i;
 		u16 crc16;
 		if(Usart2_Control_Data.rxbuf[0] != SENSOR_ADDR){
 				return ;

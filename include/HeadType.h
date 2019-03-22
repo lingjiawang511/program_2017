@@ -57,6 +57,7 @@ typedef uint32	ulong;		/**< 32-bit value */
 #define LOCK_CLOSE_TIME	20		//开锁动作执行时间 1000*5ms
 #define LOCK_STATE_DETECTION_TIME		40
 #define READ_SENSOR_TIME						200
+#define CHECK_LOCK_STATE_TIME				40
 /*************define type end*******************/
 
 /*************union type start*******************/
@@ -242,6 +243,7 @@ extern u32 Lock_Actual_State;
 extern u16 Read_Sensor_Time;
 extern u16 Temp_Data;
 extern u16 Humi_Data;
+extern u16 Check_Lock_State_Time;
 /*************extern variable end*******************/
 
 /*************function start*******************/
@@ -256,6 +258,7 @@ u16 switch_init_time(void);
 void dispose_key(void );
 void dispose_menu(void);
 void Lock_Detection_Control(void );
+void InitiativeToSend_LockState_ToPC(void);
 /*************function end*******************/
 #endif
 

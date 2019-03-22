@@ -113,11 +113,58 @@ void Lock_Detection_Control(void )
 		default :
 			Lock_detection_state = LOCK_DETECTION_READY;
 			break;
-
-	}
+	}	
+	InitiativeToSend_LockState_ToPC();
 }
 
-
+void InitiativeToSend_LockState_ToPC(void)
+{
+	u8 i;
+	u16 lrc;
+	static u32 old_lock_actual_state = 0X00000000;
+  static u8 old_lock_state_buf[32] = {0},lock_state_buf[32] = {0};
+	static u8 send_count = 0;
+	
+	if(Check_Lock_State_Time == 0){
+		if(send_count == 0){
+			for(i=0;i<32;i++){
+				old_lock_state_buf[i] = (old_lock_actual_state&(0x01<<i)) ? 0x31:0x30;
+				lock_state_buf[i] = (Lock_Actual_State&(0x01<<i)) ? 0x31:0x30;
+				if(old_lock_state_buf[i] != lock_state_buf[i]){
+					send_count++;
+				}
+			}
+			old_lock_actual_state = Lock_Actual_State;
+		}
+		if(send_count >0){
+			for(i=0;i<32;i++){
+				if(old_lock_state_buf[i] != lock_state_buf[i]){
+				 while(Usart1_Control_Data.tx_count!=0);
+					
+					Usart1_Control_Data.tx_count = 0;	
+					Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X40;
+					Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X53;
+					Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X31;
+					Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = CharToHex((i+1)/16);
+					Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = CharToHex((i+1)%16);
+					Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = lock_state_buf[i];
+					lrc=LRC_GetLRC16(&Usart1_Control_Data.txbuf[1],Usart1_Control_Data.tx_count - 1);
+					Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = (lrc>>8)&0xFF; 
+					Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = lrc&0xFF;
+					Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X0D;
+					Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X09;	
+					Usart1_Control_Data.tx_index = 0;	
+					USART_SendData(USART1,Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_index++]);
+					
+					old_lock_state_buf[i] = lock_state_buf[i];
+					break;
+				}
+			}
+			send_count--;
+		}
+		Check_Lock_State_Time = CHECK_LOCK_STATE_TIME;
+	}
+}
 
 
 
