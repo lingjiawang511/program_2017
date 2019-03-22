@@ -50,6 +50,9 @@ static void Respond_Host_Comm(void)
 		lrc=LRC_GetLRC16(&Usart1_Control_Data.rxbuf[1],Usart1_Control_Data.rx_count-5);
 		if((Usart1_Control_Data.rxbuf[Usart1_Control_Data.rx_count-3]+\
 			Usart1_Control_Data.rxbuf[Usart1_Control_Data.rx_count-4]*256 == lrc)){	 
+			if(Usart1_Control_Data.rx_count >9){
+				Usart1_Control_Data.rx_count = 9;
+			}
 			for(i = 0;i < Usart1_Control_Data.rx_count;i++){
 					MCU_Host_Rec.rec_buf[i] = Usart1_Control_Data.rxbuf[i];
 			}//把数据复制给主机通讯结构体,数据正确，先回应主机，记录刷写OLED状态位
