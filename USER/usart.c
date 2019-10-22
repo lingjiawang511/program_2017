@@ -43,7 +43,7 @@ static void Init_USART2(void)
     Usart2_Control_Data.rx_count = 0;
     Usart2_Control_Data.rx_start = 0;
     Usart2_Control_Data.rx_aframe = 0;
-    
+    Usart2_Control_Data.huart = USART2;
 }
 //=============================================================================
 //º¯ÊýÃû³Æ:Init_USART3
@@ -399,9 +399,9 @@ void USART3_Puts(char * str)
 //=============================================================================
 void USART1_Do_Tx(void )
 {
-    if (Usart1_Control_Data.tx_index < Usart1_Control_Data.tx_count) {
-		USART_SendData(USART1, Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_index]);
-		Usart1_Control_Data.tx_index++;
+  if (Usart1_Control_Data.tx_index < Usart1_Control_Data.tx_count) {
+		 USART_SendData(USART1, Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_index]);
+		 Usart1_Control_Data.tx_index++;
 	}else{
        Usart1_Control_Data.tx_count = 0; 
        Usart1_Control_Data.tx_index = 0;
@@ -420,7 +420,7 @@ void USART2_Do_Tx(void )
 			USART_SendData(USART2, Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_index]);
 			Usart2_Control_Data.tx_index++;
 	}else{
-			 SENSOR_RE485_REC;
+			 USART2_RE485_REC();
        Usart2_Control_Data.tx_count = 0; 
        Usart2_Control_Data.tx_index = 0;	   
     }
@@ -571,4 +571,12 @@ void USART3_Do_Rx(u8 rxdata)
         return;
     }           
 }
-
+void wait_tx_count_reset(unsigned short tx_count)
+{
+	u16 timeout_count;
+	timeout_count = 1000;
+	do{
+		delay_us(5);
+		timeout_count--;
+	}while((tx_count != 0)&&(timeout_count != 0));	
+}

@@ -1,5 +1,5 @@
 #include"HeadType.h"
-
+#include "bsp_MB_host.h"
 
 COMM_Rec_Union_Type  MCU_Host_Rec;//MCU作为主机时的结构体接收应答变量
 static u8 slave_rec_state;
@@ -8,9 +8,15 @@ static u8 openlockflag = 0x41;
 
 u16 Read_Sensor_Time = READ_SENSOR_TIME;
 u16 Check_Lock_State_Time = CHECK_LOCK_STATE_TIME;
-u16 Temp_Data = 0;
-u16 Humi_Data = 0;
-#define  	SENSOR_ADDR				0X01
+FULI Alarm_Data;
+FULI Temp_Data;
+FULI Humi_Data;
+short sht10_Alarm_Data = 0;
+short sht10_Temp_Data = 0;
+short sht10_Humi_Data = 0;
+#define  	SENSOR_ADDR									0X01
+#define  	SENSOR_INPUT_REG_ADDR				0X08
+#define  	SENSOR_INPUT_REG_NUM				0X08
 //=============================================================================
 //函数名称:Respond_Host_Comm
 //功能概要:响应上位机的发出的数据命令，数据已经从串口一接收完整
@@ -33,7 +39,7 @@ void Communication_GPIO_Config(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 	//调用库函数，初始化GPIO
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	SENSOR_RE485_REC;
+	USART2_RE485_REC();
 
 }
 static void Respond_Host_Comm(void)
@@ -58,14 +64,14 @@ static void Respond_Host_Comm(void)
 			}//把数据复制给主机通讯结构体,数据正确，先回应主机，记录刷写OLED状态位
 			slave_rec_state = 1;	//从机接收数据正确
 			
-		 while(Usart1_Control_Data.tx_count!=0);
-			
+//		 while(Usart1_Control_Data.tx_count!=0);
+		 wait_tx_count_reset(Usart1_Control_Data.tx_count);
 		 if(MCU_Host_Rec.control.comm == 0x41){//'A'
 				res = Execute_Host_Comm();  //计算哪个锁将打开
 				if(res != 0){ //不是设备拥有的锁，比如超过范围，直接返回
 					return;
 				}
-				RE485_SEND;
+				USART1_RE485_SEND();
 				Usart1_Control_Data.tx_count = 0;	
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_start;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.comm;
@@ -78,7 +84,7 @@ static void Respond_Host_Comm(void)
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X0D;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X09;
 			}else if(MCU_Host_Rec.control.comm == 0x4C){ //'L'一次性读取32个锁的状态
-				RE485_SEND;
+				USART1_RE485_SEND();
 				Usart1_Control_Data.tx_count = 0;	
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_start;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.comm;
@@ -104,7 +110,7 @@ static void Respond_Host_Comm(void)
 				}else{
 					return;
 				}
-				RE485_SEND;
+				USART1_RE485_SEND();
 				Usart1_Control_Data.tx_count = 0;	
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_start;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.comm;
@@ -118,20 +124,33 @@ static void Respond_Host_Comm(void)
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X0D;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X09;	
 			}else if(MCU_Host_Rec.control.comm == 0x48){//‘H’读取温湿度
-				RE485_SEND;
+				USART1_RE485_SEND();
 				Usart1_Control_Data.tx_count = 0;	
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_start;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.comm;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.addr;
-				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = Temp_Data >>8;
-				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = Temp_Data;
-				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = Humi_Data >>8;
-				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = Humi_Data;
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = sht10_Temp_Data >>8;
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = sht10_Temp_Data;
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = sht10_Humi_Data >>8;
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = sht10_Humi_Data;
 				lrc=LRC_GetLRC16(&Usart1_Control_Data.txbuf[1],Usart1_Control_Data.tx_count - 1);
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = (lrc>>8)&0xFF; 
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = lrc&0xFF;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X0D;
 				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X09;
+			}else if(MCU_Host_Rec.control.comm == 0x52){//'R'读取状态字，报警信息
+				USART1_RE485_SEND();
+				Usart1_Control_Data.tx_count = 0;	
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_start;
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.comm;
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.addr;
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = sht10_Alarm_Data >>8;
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = sht10_Alarm_Data;
+				lrc=LRC_GetLRC16(&Usart1_Control_Data.txbuf[1],Usart1_Control_Data.tx_count - 1);
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = (lrc>>8)&0xFF; 
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = lrc&0xFF;
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X0D;
+				Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = 0X09;			
 			}else if(MCU_Host_Rec.control.comm == 0x53){//下位机回复主动发送锁状态，默认不处理
 				
 				Usart1_Control_Data.rx_aframe = 0;	//清空和主机的通讯，避免通讯错误
@@ -139,7 +158,7 @@ static void Respond_Host_Comm(void)
 				return;
 			}
 		}else{	//LRC错误
-			RE485_SEND;
+			USART1_RE485_SEND();
 			Usart1_Control_Data.tx_count = 0;	
 			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.frame_start;
 			Usart1_Control_Data.txbuf[Usart1_Control_Data.tx_count++] = MCU_Host_Rec.control.comm;
@@ -190,7 +209,7 @@ u8  Execute_Host_Comm(void)
 static void send_data_to_read_sensor(void)
 {
 		u16 crc16;
-		SENSOR_RE485_SEND;
+		USART2_RE485_SEND();
 		Usart2_Control_Data.tx_count = 0;	
 		Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = SENSOR_ADDR;
 		Usart2_Control_Data.txbuf[Usart2_Control_Data.tx_count++] = 0x03;
@@ -218,8 +237,32 @@ void Dispose_Humiture_Sensor_Data(void)
 		crc16=CRC_GetModbus16(&Usart2_Control_Data.rxbuf[0],Usart2_Control_Data.rx_count-2);
 		if((Usart2_Control_Data.rxbuf[Usart2_Control_Data.rx_count-2]+\
 			Usart2_Control_Data.rxbuf[Usart2_Control_Data.rx_count-1]*256 == crc16)){	 
-				Temp_Data =(Usart2_Control_Data.rxbuf[3]<<8) + Usart2_Control_Data.rxbuf[4];
-				Humi_Data =(Usart2_Control_Data.rxbuf[5]<<8) + Usart2_Control_Data.rxbuf[6];	
+				sht10_Temp_Data =(Usart2_Control_Data.rxbuf[3]<<8) + Usart2_Control_Data.rxbuf[4];
+				sht10_Humi_Data =(Usart2_Control_Data.rxbuf[5]<<8) + Usart2_Control_Data.rxbuf[6];	
+		}
+		return;
+}
+void Dispose_Modbus_Sensor_Data(void)
+{
+		static u16 crc16;
+		if(Usart2_Control_Data.rxbuf[0] != SENSOR_ADDR){
+				return ;
+		}
+		if((Usart2_Control_Data.rxbuf[1] != 0x04)||(Usart2_Control_Data.rxbuf[2] != SENSOR_INPUT_REG_NUM*2)){
+				return ;
+		}
+		crc16=CRC_GetModbus16(&Usart2_Control_Data.rxbuf[0],Usart2_Control_Data.rx_count-2);
+		if((Usart2_Control_Data.rxbuf[Usart2_Control_Data.rx_count-2]+\
+			Usart2_Control_Data.rxbuf[Usart2_Control_Data.rx_count-1]*256 == crc16)){	
+				Alarm_Data.FULI_ui[1].i = (Usart2_Control_Data.rxbuf[3]<<8) + Usart2_Control_Data.rxbuf[4];//报警只使用此低八位
+				Alarm_Data.FULI_ui[0].i = (Usart2_Control_Data.rxbuf[5]<<8) + Usart2_Control_Data.rxbuf[6];
+				Temp_Data.FULI_ui[1].i = (Usart2_Control_Data.rxbuf[7]<<8) + Usart2_Control_Data.rxbuf[8];
+				Temp_Data.FULI_ui[0].i = (Usart2_Control_Data.rxbuf[9]<<8) + Usart2_Control_Data.rxbuf[10];
+				Humi_Data.FULI_ui[1].i = (Usart2_Control_Data.rxbuf[15]<<8) + Usart2_Control_Data.rxbuf[16];	
+ 				Humi_Data.FULI_ui[0].i = (Usart2_Control_Data.rxbuf[17]<<8) + Usart2_Control_Data.rxbuf[18];
+			  sht10_Alarm_Data = Alarm_Data.FULI_ui[1].i;
+				sht10_Temp_Data = (short)(Temp_Data.FULI_f *10);
+				sht10_Humi_Data = (short)(Humi_Data.FULI_f *10);
 		}
 		return;
 }
@@ -230,6 +273,7 @@ void Communication_Process(void )
 			Usart1_Control_Data.rx_count = 0;
 			Usart1_Control_Data.rx_aframe = 0;
 		}
+#if USE_TH10S_SENSOR == 1	
 		if (1 == Usart2_Control_Data.rx_aframe){ 
 			Dispose_Humiture_Sensor_Data();
 			Usart2_Control_Data.rx_count = 0;
@@ -239,7 +283,17 @@ void Communication_Process(void )
 				send_data_to_read_sensor();
 				Read_Sensor_Time = READ_SENSOR_TIME;
 		}
-		
+#else
+		if (1 == Usart2_Control_Data.rx_aframe){ 
+			Dispose_Modbus_Sensor_Data();
+			Usart2_Control_Data.rx_count = 0;
+			Usart2_Control_Data.rx_aframe = 0;
+		}
+		if(Read_Sensor_Time == 0){
+				MB_ReadInputReg_04H(&Usart2_Control_Data,SENSOR_ADDR, SENSOR_INPUT_REG_ADDR, SENSOR_INPUT_REG_NUM);
+				Read_Sensor_Time = READ_SENSOR_TIME;
+		}	
+#endif
 }
 
 

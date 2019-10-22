@@ -4,11 +4,12 @@
 #include "stm32f10x.h"
 #include "stdio.h"
 
-#define       RE485_SEND    	 		 	GPIO_SetBits(GPIOA, GPIO_Pin_11)
-#define       RE485_REC  						GPIO_ResetBits(GPIOA, GPIO_Pin_11)
-#define       SENSOR_RE485_SEND    	GPIO_SetBits(GPIOA, GPIO_Pin_4)
-#define       SENSOR_RE485_REC  		GPIO_ResetBits(GPIOA, GPIO_Pin_4)
-
+#define       USART1_RE485_SEND()    	 		GPIO_SetBits(GPIOA, GPIO_Pin_11)
+#define       USART1_RE485_REC()  				GPIO_ResetBits(GPIOA, GPIO_Pin_11)
+#define       USART2_RE485_SEND()    			GPIO_SetBits(GPIOA, GPIO_Pin_4)
+#define       USART2_RE485_REC()  				GPIO_ResetBits(GPIOA, GPIO_Pin_4)
+#define       MODBUS_RE485_SEND()    			USART2_RE485_SEND()
+#define       MODBUS_RE485_REC()  				USART2_RE485_REC()
 
 void USART1_IRQHandler(void);	
 int fputc(int ch, FILE *f);
@@ -28,6 +29,7 @@ void USART3_Do_Tx(void );
 void USART1_Do_Rx(u8 rxdata);
 void USART2_Do_Rx(u8 rxdata);
 void USART3_Do_Rx(u8 rxdata);
+void wait_tx_count_reset(unsigned short tx_count);
 //void Respond_Host_Comm(void);
 //void Dispose_Data_For_Host(void);
 #endif

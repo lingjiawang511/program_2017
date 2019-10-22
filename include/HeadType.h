@@ -44,7 +44,7 @@ typedef uint32	ulong;		/**< 32-bit value */
 
 /*自动成帧超时定时时间*/
 #define AUTO_FRAME_TIMEOUT1  10  //10*2ms
-#define AUTO_FRAME_TIMEOUT2  10  //10*2ms
+#define AUTO_FRAME_TIMEOUT2  20  //10*2ms
 #define AUTO_FRAME_TIMEOUT3  10  //10*2ms
 /*自动成帧超时定时时间*/
 //响应超时时间，即上位机确认二维码正确后扫描枪一直扫描直到得到下一次数据的最长时间
@@ -58,6 +58,7 @@ typedef uint32	ulong;		/**< 32-bit value */
 #define LOCK_STATE_DETECTION_TIME		40
 #define READ_SENSOR_TIME						200
 #define CHECK_LOCK_STATE_TIME				40
+#define USE_TH10S_SENSOR						0
 /*************define type end*******************/
 
 /*************union type start*******************/
@@ -77,7 +78,11 @@ typedef union{
 	char c[2];
 	unsigned char uc[2];
 }UI;
-
+typedef union{
+float 	FULI_f;
+UL  	  FULI_ul;
+UI      FULI_ui[2];
+}FULI;
 /*************union type end*******************/
 
 /*************enum type start*******************/
@@ -116,6 +121,7 @@ typedef enum{
 /*************struct type start*******************/
 
 typedef struct{
+	  USART_TypeDef* huart;
     u16 tx_index;        //发送当前数据的索引
     u16 rx_index;        //接收到当前数据的索引
     u16 tx_count;        //发送数据总数
@@ -241,8 +247,12 @@ extern u8 open_lock_count;
 extern u16 lock_state_decection_time;
 extern u32 Lock_Actual_State;
 extern u16 Read_Sensor_Time;
-extern u16 Temp_Data;
-extern u16 Humi_Data;
+extern FULI Alarm_Data;
+extern FULI Temp_Data;
+extern FULI Humi_Data;
+extern short sht10_Alarm_Data;
+extern short sht10_Temp_Data;
+extern short sht10_Humi_Data;
 extern u16 Check_Lock_State_Time;
 /*************extern variable end*******************/
 
